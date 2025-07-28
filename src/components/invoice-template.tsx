@@ -12,8 +12,8 @@ interface InvoiceTemplateProps {
 export function InvoiceTemplate({ data, clients }: InvoiceTemplateProps) {
   const client = clients.find(c => c.id === data.clientId);
 
-  const subtotal = data.items.reduce((acc, item) => acc + (item.quantity || 0) * (item.rate || 0), 0);
-  const taxAmount = subtotal * ((data.tax || 0) / 100);
+  const subtotal = data.items.reduce((acc, item) => acc + (Number(item.quantity) || 0) * (Number(item.rate) || 0), 0);
+  const taxAmount = subtotal * ((Number(data.tax) || 0) / 100);
   const total = subtotal + taxAmount;
 
   return (
@@ -66,9 +66,9 @@ export function InvoiceTemplate({ data, clients }: InvoiceTemplateProps) {
             {data.items.map((item, index) => (
               <tr key={index}>
                 <td className="p-3">{item.description}</td>
-                <td className="p-3 text-right">{item.quantity}</td>
-                <td className="p-3 text-right">${item.rate.toFixed(2)}</td>
-                <td className="p-3 text-right">${(item.quantity * item.rate).toFixed(2)}</td>
+                <td className="p-3 text-right">{Number(item.quantity)}</td>
+                <td className="p-3 text-right">${(Number(item.rate) || 0).toFixed(2)}</td>
+                <td className="p-3 text-right">${((Number(item.quantity) || 0) * (Number(item.rate) || 0)).toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
