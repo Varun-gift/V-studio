@@ -12,7 +12,7 @@ interface InvoiceTemplateProps {
 export function InvoiceTemplate({ data, clients }: InvoiceTemplateProps) {
   const client = clients.find(c => c.id === data.clientId);
 
-  const subtotal = data.items.reduce((acc, item) => acc + (Number(item.quantity) || 0) * (Number(item.rate) || 0), 0);
+  const subtotal = (data.items || []).reduce((acc, item) => acc + (Number(item.quantity) || 0) * (Number(item.rate) || 0), 0);
   const taxAmount = subtotal * ((Number(data.tax) || 0) / 100);
   const total = subtotal + taxAmount;
 
@@ -43,11 +43,11 @@ export function InvoiceTemplate({ data, clients }: InvoiceTemplateProps) {
         <div className="text-right">
           <div className="grid grid-cols-2">
             <p className="font-semibold text-gray-600">Invoice Date:</p>
-            <p>{format(data.invoiceDate, 'PPP')}</p>
+            <p>{data.invoiceDate ? format(data.invoiceDate, "PPP") : 'N/A'}</p>
           </div>
           <div className="grid grid-cols-2 mt-1">
             <p className="font-semibold text-gray-600">Due Date:</p>
-            <p>{format(data.dueDate, 'PPP')}</p>
+            <p>{data.dueDate ? format(data.dueDate, "PPP") : 'N/A'}</p>
           </div>
         </div>
       </section>
@@ -63,10 +63,10 @@ export function InvoiceTemplate({ data, clients }: InvoiceTemplateProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {data.items.map((item, index) => (
+            {(data.items || []).map((item, index) => (
               <tr key={index}>
                 <td className="p-3">{item.description}</td>
-                <td className="p-3 text-right">{Number(item.quantity)}</td>
+                <td className="p-3 text-right">{Number(item.quantity) || 0}</td>
                 <td className="p-3 text-right">${(Number(item.rate) || 0).toFixed(2)}</td>
                 <td className="p-3 text-right">${((Number(item.quantity) || 0) * (Number(item.rate) || 0)).toFixed(2)}</td>
               </tr>
@@ -82,7 +82,7 @@ export function InvoiceTemplate({ data, clients }: InvoiceTemplateProps) {
             <span className="font-mono">${subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between">
-            <span>Tax ({data.tax || 0}%)</span>
+            <span>Tax ({Number(data.tax) || 0}%)</span>
             <span className="font-mono">${taxAmount.toFixed(2)}</span>
           </div>
           <div className="border-t border-gray-300 pt-2 mt-2">

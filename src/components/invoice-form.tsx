@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Separator } from './ui/separator';
-import { Trash2, PlusCircle, Sparkles, FileDown, Send } from 'lucide-react';
+import { Trash2, PlusCircle, Sparkles, FileDown, Send, Eye } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { CalendarIcon } from 'lucide-react';
 import { Calendar } from './ui/calendar';
@@ -36,7 +36,7 @@ const invoiceSchema = z.object({
       rate: z.coerce.number().min(0),
     })
   ).min(1, 'At least one item is required.'),
-  tax: z.coerce.number().min(0).optional(),
+  tax: z.coerce.number().min(0).optional().default(0),
 });
 
 export type InvoiceFormValues = z.infer<typeof invoiceSchema>;
@@ -130,6 +130,8 @@ function AIDescriptionDialog({ onGenerate }: { onGenerate: (description: string)
 
 export function InvoiceForm() {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
   const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
@@ -158,48 +160,79 @@ export function InvoiceForm() {
   
   const watchItems = form.watch('items');
   const watchTax = form.watch('tax');
-  const subtotal = watchItems.reduce((acc, item) => acc + (item.quantity || 0) * (item.rate || 0), 0);
-  const taxAmount = subtotal * ((watchTax || 0) / 100);
+  const subtotal = watchItems.reduce((acc, item) => acc + (Number(item.quantity) || 0) * (Number(item.rate) || 0), 0);
+  const taxAmount = subtotal * ((Number(watchTax) || 0) / 100);
   const total = subtotal + taxAmount;
 
-  const handleGeneratePDF = async () => {
+  const validateAndGetData = async () => {
     const isValid = await form.trigger();
     if (!isValid) {
         toast({
             variant: 'destructive',
             title: 'Invalid Form',
-            description: 'Please fill out all required fields before generating the PDF.',
+            description: 'Please fill out all required fields.',
         });
-        return;
+        return null;
     }
+    return form.getValues();
+  }
+
+  const handlePreview = async () => {
+      const data = await validateAndGetData();
+      if (data) {
+          setIsPreviewOpen(true);
+      }
+  }
+
+  const handleGeneratePDF = async () => {
+    const data = await validateAndGetData();
+    if (!data) return;
     
     setIsGeneratingPDF(true);
-    const invoiceElement = document.getElementById('invoice-pdf');
-    if (invoiceElement) {
-        try {
-            const canvas = await html2canvas(invoiceElement, { scale: 2 });
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'px', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            const imgWidth = canvas.width;
-            const imgHeight = canvas.height;
-            const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-            const imgX = (pdfWidth - imgWidth * ratio) / 2;
-            const imgY = 0;
-            pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-            pdf.save(`invoice-${new Date().toISOString().split('T')[0]}.pdf`);
-        } catch (error) {
-            console.error('Error generating PDF:', error);
-            toast({
-                variant: 'destructive',
-                title: 'Error generating PDF',
-                description: 'An unexpected error occurred. Please try again.',
-            });
-        } finally {
-            setIsGeneratingPDF(false);
-        }
-    } else {
+    // Use a temporary element for rendering to avoid issues with hidden elements
+    const invoiceElement = document.createElement('div');
+    invoiceElement.id = 'invoice-pdf-temp-container';
+    invoiceElement.style.position = 'absolute';
+    invoiceElement.style.left = '-9999px';
+    invoiceElement.style.top = '-9999px';
+    document.body.appendChild(invoiceElement);
+    
+    // We need to render the component to the temporary div to generate the PDF
+    const { createRoot } = await import('react-dom/client');
+    const root = createRoot(invoiceElement);
+    root.render(
+        <div className="p-8 bg-white text-black w-[800px]">
+            <InvoiceTemplate data={data} clients={mockClients} />
+        </div>
+    );
+    
+    // Allow time for rendering
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    try {
+        const canvas = await html2canvas(invoiceElement.firstChild as HTMLElement, { scale: 2 });
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'px', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+        const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+        const imgX = (pdfWidth - imgWidth * ratio) / 2;
+        const imgY = 0;
+        pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+        pdf.save(`invoice-${new Date().toISOString().split('T')[0]}.pdf`);
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        toast({
+            variant: 'destructive',
+            title: 'Error generating PDF',
+            description: 'An unexpected error occurred. Please try again.',
+        });
+    } finally {
+        // Clean up the temporary element
+        root.unmount();
+        document.body.removeChild(invoiceElement);
         setIsGeneratingPDF(false);
     }
   };
@@ -212,6 +245,18 @@ export function InvoiceForm() {
           <InvoiceTemplate data={form.getValues()} clients={mockClients} />
         </div>
       </div>
+
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="max-w-4xl h-[90vh]">
+            <DialogHeader>
+                <DialogTitle>Invoice Preview</DialogTitle>
+            </DialogHeader>
+            <div className="overflow-auto h-full border rounded-md">
+              <InvoiceTemplate data={form.getValues()} clients={mockClients} />
+            </div>
+        </DialogContent>
+      </Dialog>
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <Card>
@@ -345,7 +390,7 @@ export function InvoiceForm() {
                           </div>
                           <div className="grid gap-2">
                               <Label>Total</Label>
-                              <Input value={(watchItems[index].quantity * watchItems[index].rate).toFixed(2)} disabled className="font-mono"/>
+                              <Input value={( (Number(watchItems[index].quantity) || 0) * (Number(watchItems[index].rate) || 0) ).toFixed(2)} disabled className="font-mono"/>
                           </div>
                           <Button
                               type="button"
@@ -398,6 +443,10 @@ export function InvoiceForm() {
 
           <div className="flex justify-end gap-2">
             <Button type="submit" variant="secondary">Save Draft</Button>
+            <Button type="button" variant="outline" onClick={handlePreview}>
+                <Eye className="mr-2 h-4 w-4"/>
+                Preview
+            </Button>
             <Button type="button" variant="outline" className="text-primary border-primary hover:bg-primary/5 hover:text-primary" onClick={handleGeneratePDF} disabled={isGeneratingPDF}>
               <FileDown className="mr-2 h-4 w-4"/>
               {isGeneratingPDF ? 'Generating...' : 'Generate PDF'}
