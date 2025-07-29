@@ -77,7 +77,7 @@ export function InvoiceForm() {
                     web: '',
                     area: '',
                     template: 'classic',
-                    themeColor: '#004E45'
+                    themeColor: '#000000'
                 });
             }
         };

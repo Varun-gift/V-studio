@@ -37,6 +37,7 @@ export function ModernTemplate({ data, brandingInfo }: ModernTemplateProps) {
               height={60}
               className="object-contain mb-4"
               data-ai-hint="logo company"
+              unoptimized
             />
           <p className="text-gray-500">From</p>
           <h2 className="text-lg font-bold text-gray-900 mt-1">{brandingInfo.name}</h2>

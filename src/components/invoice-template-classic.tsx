@@ -37,6 +37,7 @@ export function ClassicTemplate({ data, brandingInfo }: ClassicTemplateProps) {
               height={80}
               className="rounded-lg object-cover mb-4"
               data-ai-hint="logo company"
+              unoptimized
             />
           <h1 className="text-2xl font-bold" style={{color: themeColor}}>{brandingInfo.name}</h1>
           <div className="text-xs text-gray-500 mt-1">
