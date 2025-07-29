@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -71,20 +72,40 @@ export function InvoiceForm() {
   });
   
   const { toast } = useToast();
-
-  function onSubmit(data: InvoiceFormValues) {
-    console.log(data);
-    toast({
-        title: "Invoice Saved!",
-        description: "Your invoice has been successfully saved as a draft.",
-    });
-  }
   
   const watchItems = form.watch('items');
   const watchTax = form.watch('tax');
   const subtotal = watchItems.reduce((acc, item) => acc + (Number(item.quantity) || 0) * (Number(item.rate) || 0), 0);
   const taxAmount = subtotal * ((Number(watchTax) || 0) / 100);
   const total = subtotal + taxAmount;
+
+  function onSubmit(data: InvoiceFormValues) {
+    try {
+      const storedInvoicesRaw = localStorage.getItem('vstudio-invoices');
+      const storedInvoices = storedInvoicesRaw ? JSON.parse(storedInvoicesRaw) : [];
+      
+      const newInvoice = {
+        ...data,
+        id: `INV-${String(storedInvoices.length + 1).padStart(3, '0')}`,
+        total: total,
+      };
+
+      storedInvoices.push(newInvoice);
+      localStorage.setItem('vstudio-invoices', JSON.stringify(storedInvoices));
+
+      toast({
+          title: "Invoice Saved!",
+          description: "Your invoice has been successfully saved as a draft.",
+      });
+    } catch (error) {
+      console.error("Failed to save invoice to localStorage", error);
+      toast({
+        variant: 'destructive',
+        title: 'Error saving invoice',
+        description: 'Could not save your invoice. Your browser might be blocking local storage.',
+      });
+    }
+  }
 
   const validateAndGetData = async () => {
     const isValid = await form.trigger();
