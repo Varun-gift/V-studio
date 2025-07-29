@@ -8,9 +8,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Separator } from './ui/separator';
-import { Trash2, PlusCircle, FileDown, Send, Eye } from 'lucide-react';
+import { Trash2, PlusCircle, FileDown, Send, Eye, X } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { CalendarIcon } from 'lucide-react';
 import { Calendar } from './ui/calendar';
@@ -115,7 +114,6 @@ export function InvoiceForm() {
     if (!data) return;
     
     setIsGeneratingPDF(true);
-    // Use a temporary element for rendering to avoid issues with hidden elements
     const invoiceElement = document.createElement('div');
     invoiceElement.id = 'invoice-pdf-temp-container';
     invoiceElement.style.position = 'absolute';
@@ -123,30 +121,26 @@ export function InvoiceForm() {
     invoiceElement.style.top = '-9999px';
     document.body.appendChild(invoiceElement);
     
-    // We need to render the component to the temporary div to generate the PDF
     const { createRoot } = await import('react-dom/client');
     const root = createRoot(invoiceElement);
     root.render(
-        <div className="p-8 bg-white text-black w-[800px]">
+        <div className="w-[210mm] h-[297mm]">
             <InvoiceTemplate data={data} clients={mockClients} template={template} themeColor={themeColor}/>
         </div>
     );
     
-    // Allow time for rendering
     await new Promise(resolve => setTimeout(resolve, 500));
 
     try {
         const canvas = await html2canvas(invoiceElement.firstChild as HTMLElement, { scale: 2 });
         const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'px', 'a4');
+        const pdf = new jsPDF('p', 'mm', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
         const imgWidth = canvas.width;
         const imgHeight = canvas.height;
         const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-        const imgX = (pdfWidth - imgWidth * ratio) / 2;
-        const imgY = 0;
-        pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth * ratio, imgHeight * ratio);
         pdf.save(`invoice-${new Date().toISOString().split('T')[0]}.pdf`);
     } catch (error) {
         console.error('Error generating PDF:', error);
@@ -156,7 +150,6 @@ export function InvoiceForm() {
             description: 'An unexpected error occurred. Please try again.',
         });
     } finally {
-        // Clean up the temporary element
         root.unmount();
         document.body.removeChild(invoiceElement);
         setIsGeneratingPDF(false);
@@ -166,12 +159,6 @@ export function InvoiceForm() {
 
   return (
     <>
-      <div className="hidden">
-        <div id="invoice-pdf" className="p-8 bg-white text-black">
-          <InvoiceTemplate data={form.getValues()} clients={mockClients} template={template} themeColor={themeColor}/>
-        </div>
-      </div>
-
       <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
         <DialogContent className="max-w-4xl h-[90vh]">
             <DialogHeader>
@@ -185,206 +172,199 @@ export function InvoiceForm() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <Card>
-              <CardHeader>
-                  <CardTitle>Client Information</CardTitle>
-              </CardHeader>
-              <CardContent className="grid md:grid-cols-3 gap-6">
-                  <FormField
-                      control={form.control}
-                      name="clientId"
-                      render={({ field }) => (
-                          <FormItem>
-                              <FormLabel>Client</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <FormControl>
-                                      <SelectTrigger>
-                                          <SelectValue placeholder="Select a client" />
-                                      </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                      {mockClients.map(client => (
-                                          <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>
-                                      ))}
-                                  </SelectContent>
-                              </Select>
-                              <FormMessage />
-                          </FormItem>
-                      )}
-                  />
-                  <FormField
-                      control={form.control}
-                      name="invoiceDate"
-                      render={({ field }) => (
-                          <FormItem className="flex flex-col">
-                              <FormLabel>Invoice Date</FormLabel>
-                              <Popover>
-                                  <PopoverTrigger asChild>
-                                  <FormControl>
-                                      <Button
-                                      variant={"outline"}
-                                      className={cn(
-                                          "w-full pl-3 text-left font-normal",
-                                          !field.value && "text-muted-foreground"
-                                      )}
-                                      >
-                                      {field.value ? (
-                                          format(field.value, "PPP")
-                                      ) : (
-                                          <span>Pick a date</span>
-                                      )}
-                                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                      </Button>
-                                  </FormControl>
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-auto p-0" align="start">
-                                  <Calendar
-                                      mode="single"
-                                      selected={field.value}
-                                      onSelect={field.onChange}
-                                      initialFocus
-                                  />
-                                  </PopoverContent>
-                              </Popover>
-                              <FormMessage />
-                          </FormItem>
-                      )}
-                  />
-                  <FormField
-                      control={form.control}
-                      name="dueDate"
-                      render={({ field }) => (
-                          <FormItem className="flex flex-col">
-                              <FormLabel>Due Date</FormLabel>
-                              <Popover>
-                                  <PopoverTrigger asChild>
-                                  <FormControl>
-                                      <Button
-                                      variant={"outline"}
-                                      className={cn(
-                                          "w-full pl-3 text-left font-normal",
-                                          !field.value && "text-muted-foreground"
-                                      )}
-                                      >
-                                      {field.value ? (
-                                          format(field.value, "PPP")
-                                      ) : (
-                                          <span>Pick a date</span>
-                                      )}
-                                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                      </Button>
-                                  </FormControl>
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-auto p-0" align="start">
-                                  <Calendar
-                                      mode="single"
-                                      selected={field.value}
-                                      onSelect={field.onChange}
-                                  />
-                                  </PopoverContent>
-                              </Popover>
-                              <FormMessage />
-                          </FormItem>
-                      )}
-                  />
-              </CardContent>
-          </Card>
+            <div className="space-y-4">
+                <FormField
+                    control={form.control}
+                    name="clientId"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel className="font-semibold">Client</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a client" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {mockClients.map(client => (
+                                        <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
 
-          <Card>
-              <CardHeader>
-                  <CardTitle>Invoice Items</CardTitle>
-              </CardHeader>
-              <CardContent>
-                  <div className="space-y-4">
-                  {fields.map((field, index) => (
-                      <div key={field.id} className="flex flex-col md:flex-row gap-4 items-start p-4 border rounded-lg">
-                          <div className="grid gap-2 flex-1">
-                              <FormLabel>Description</FormLabel>
-                              <FormControl>
-                                <Textarea {...form.register(`items.${index}.description`)} />
-                              </FormControl>
-                              <FormMessage>{form.formState.errors.items?.[index]?.description?.message}</FormMessage>
-                          </div>
-                          <div className="grid gap-2">
-                              <FormLabel>Quantity</FormLabel>
-                              <FormControl>
-                                <Input type="number" {...form.register(`items.${index}.quantity`)} />
-                              </FormControl>
-                          </div>
-                          <div className="grid gap-2">
-                              <FormLabel>Rate</FormLabel>
-                              <FormControl>
-                                <Input type="number" step="0.01" {...form.register(`items.${index}.rate`)} />
-                              </FormControl>
-                          </div>
-                          <div className="grid gap-2">
-                              <FormLabel>Total</FormLabel>
-                              <Input value={( (Number(watchItems[index].quantity) || 0) * (Number(watchItems[index].rate) || 0) ).toFixed(2)} disabled className="font-mono"/>
-                          </div>
-                          <Button
-                              type="button"
-                              variant="destructive"
-                              onClick={() => remove(index)}
-                              className="mt-auto"
-                          >
-                              <Trash2 className="h-4 w-4" />
-                          </Button>
-                      </div>
-                  ))}
-                  </div>
-                  <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => append({ description: '', quantity: 1, rate: 0 })}
-                      className="mt-4"
-                  >
-                      <PlusCircle className="mr-2 h-4 w-4" /> Add Item
-                  </Button>
-              </CardContent>
-              <CardFooter className="flex-col items-end gap-2">
-                  <Separator />
-                  <div className="grid grid-cols-2 gap-4 pt-4 w-full max-w-sm">
-                      <p>Subtotal</p>
-                      <p className="text-right font-mono">${subtotal.toFixed(2)}</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 items-center w-full max-w-sm">
-                      <FormField
-                          control={form.control}
-                          name="tax"
-                          render={({ field }) => (
-                              <FormItem className="flex items-center gap-2">
-                                  <FormLabel className="pt-2">Tax (%)</FormLabel>
-                                  <FormControl>
-                                      <Input type="number" step="0.1" {...field} className="w-24" />
-                                  </FormControl>
-                              </FormItem>
-                          )}
-                      />
-                      <p className="text-right font-mono">${taxAmount.toFixed(2)}</p>
-                  </div>
-                  <Separator />
-                  <div className="grid grid-cols-2 gap-4 w-full max-w-sm font-bold text-lg">
-                      <p>Total</p>
-                      <p className="text-right font-mono">${total.toFixed(2)}</p>
-                  </div>
-              </CardFooter>
-          </Card>
+                <div>
+                    <FormLabel className="font-semibold">Dates</FormLabel>
+                    <div className="grid grid-cols-2 gap-4 mt-2">
+                        <FormField
+                            control={form.control}
+                            name="invoiceDate"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                            variant={"outline"}
+                                            className={cn(
+                                                "w-full justify-start text-left font-normal",
+                                                !field.value && "text-muted-foreground"
+                                            )}
+                                            >
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                                            </Button>
+                                        </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                                        </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="dueDate"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                            variant={"outline"}
+                                            className={cn(
+                                                "w-full justify-start text-left font-normal",
+                                                !field.value && "text-muted-foreground"
+                                            )}
+                                            >
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                                            </Button>
+                                        </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} />
+                                        </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                </div>
+            </div>
 
-          <div className="flex justify-end gap-2">
-            <Button type="submit" variant="secondary">Save Draft</Button>
-            <Button type="button" variant="outline" onClick={handlePreview}>
-                <Eye className="mr-2 h-4 w-4"/>
-                Preview
-            </Button>
-            <Button type="button" variant="outline" className="text-primary border-primary hover:bg-primary/5 hover:text-primary" onClick={handleGeneratePDF} disabled={isGeneratingPDF}>
-              <FileDown className="mr-2 h-4 w-4"/>
-              {isGeneratingPDF ? 'Generating...' : 'Generate PDF'}
-            </Button>
-            <Button type="button" className="bg-accent hover:bg-accent/90">
-              <Send className="mr-2 h-4 w-4"/>
-              Send Invoice
-            </Button>
-          </div>
+            <div className="space-y-4">
+                <h2 className="font-semibold">Invoice Items</h2>
+                <div className="space-y-4">
+                {fields.map((field, index) => (
+                    <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                        <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => remove(index)}>
+                            <X className="h-4 w-4" />
+                        </Button>
+                        <FormField
+                            control={form.control}
+                            name={`items.${index}.description`}
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Description</FormLabel>
+                                <FormControl>
+                                    <Input {...field} placeholder="Service or product description"/>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        <div className="grid grid-cols-3 gap-4">
+                             <FormField
+                                control={form.control}
+                                name={`items.${index}.quantity`}
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Quantity</FormLabel>
+                                    <FormControl><Input type="number" {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name={`items.${index}.rate`}
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Rate</FormLabel>
+                                    <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            <FormItem>
+                                <FormLabel>Total</FormLabel>
+                                <Input value={( (Number(watchItems[index].quantity) || 0) * (Number(watchItems[index].rate) || 0) ).toFixed(2)} disabled className="font-mono"/>
+                            </FormItem>
+                        </div>
+                    </div>
+                ))}
+                </div>
+                <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => append({ description: '', quantity: 1, rate: 0 })}
+                    className="w-full"
+                >
+                    Add Item
+                </Button>
+            </div>
+            
+            <div className="space-y-4">
+                <h2 className="font-semibold">Summary</h2>
+                <div className="space-y-2">
+                    <div className="flex justify-between">
+                        <span>Subtotal</span>
+                        <span className="font-mono">${subtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <FormField
+                            control={form.control}
+                            name="tax"
+                            render={({ field }) => (
+                                <FormItem className="flex items-center gap-2">
+                                    <FormLabel className="pt-2">Tax (%)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" step="0.1" {...field} className="w-24" />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
+                        <span className="font-mono">${taxAmount.toFixed(2)}</span>
+                    </div>
+                    <Separator />
+                    <div className="flex justify-between font-bold text-lg">
+                        <span>Total</span>
+                        <span className="font-mono">${total.toFixed(2)}</span>
+                    </div>
+                </div>
+            </div>
+
+
+            <div className="flex flex-col gap-2 pt-4">
+              <Button type="submit" variant="secondary" className="w-full">Save Draft</Button>
+              <Button type="button" variant="secondary" className="w-full" onClick={handlePreview}>
+                  Preview
+              </Button>
+              <Button type="button" variant="secondary" className="w-full" onClick={handleGeneratePDF} disabled={isGeneratingPDF}>
+                {isGeneratingPDF ? 'Generating...' : 'Generate PDF'}
+              </Button>
+              <Button type="button" className="w-full">
+                <Send className="mr-2 h-4 w-4"/>
+                Send Invoice
+              </Button>
+            </div>
         </form>
       </Form>
     </>
