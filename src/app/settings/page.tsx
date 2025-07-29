@@ -190,6 +190,26 @@ export default function SettingsPage() {
                     </div>
                     <span className="font-semibold mt-2">Professional</span>
                   </Label>
+                   <Label className="border rounded-md p-2 flex flex-col items-center gap-2 cursor-pointer has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
+                    <RadioGroupItem value="ginyard" id="ginyard"/>
+                     <div className="border rounded-md p-2 w-full aspect-[1/1.41] bg-white overflow-hidden">
+                      {/* Ginyard Template Preview */}
+                      <div className="h-full w-full rounded-md p-1" style={{backgroundColor: themeColor}}>
+                        <div className="bg-white/80 h-full w-full rounded-sm p-1 space-y-2">
+                           <div className="flex justify-between items-center">
+                              <div className="h-2 w-1/4 rounded-sm bg-gray-400"></div>
+                              <div className="h-2 w-1/6 rounded-sm bg-gray-400"></div>
+                           </div>
+                           <div className="h-1 w-1/3 rounded-sm bg-gray-300"></div>
+                           <div className="h-1 w-1/2 rounded-sm bg-gray-300"></div>
+                           <div className="h-4 w-full mt-2 flex items-center p-1 opacity-50" style={{backgroundColor: themeColor}}><div className="h-2 w-full bg-white/80 rounded-sm"></div></div>
+                           <div className="h-3 w-full bg-gray-100 border-b border-gray-200"></div>
+                           <div className="h-3 w-full bg-gray-100 border-b border-gray-200"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <span className="font-semibold mt-2">Ginyard</span>
+                  </Label>
                 </RadioGroup>
               </div>
               <div className="grid grid-cols-2 gap-4 items-center">

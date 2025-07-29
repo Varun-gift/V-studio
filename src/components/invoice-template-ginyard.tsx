@@ -1,0 +1,136 @@
+
+'use client';
+
+import { format } from 'date-fns';
+import type { InvoiceFormValues } from './invoice-form';
+import { useEffect, useState } from 'react';
+
+interface InvoiceTemplateProps {
+    data: InvoiceFormValues;
+    clients: { id: string; name: string; address: string; email: string; phone: string; }[];
+    themeColor: string;
+}
+
+interface BrandingInfo {
+    name: string;
+    email: string;
+    logo: string;
+    phone: string;
+    web: string;
+    area: string;
+}
+
+// Helper to lighten a hex color
+function lightenColor(hex: string, percent: number) {
+  hex = hex.replace(/^#/, '');
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+
+  const newR = Math.min(255, r + (255 - r) * (percent / 100));
+  const newG = Math.min(255, g + (255 - g) * (percent / 100));
+  const newB = Math.min(255, b + (255 - b) * (percent / 100));
+
+  return `#${Math.round(newR).toString(16).padStart(2, '0')}${Math.round(newG).toString(16).padStart(2, '0')}${Math.round(newB).toString(16).padStart(2, '0')}`;
+}
+
+
+export function GinyardTemplate({ data, clients, themeColor }: InvoiceTemplateProps) {
+  const [branding, setBranding] = useState<BrandingInfo | null>(null);
+
+  useEffect(() => {
+    // Cannot access localStorage on the server, so we do it in useEffect.
+    const savedName = localStorage.getItem('vstudio-name') || 'Your Company';
+    const savedEmail = localStorage.getItem('vstudio-email') || 'your@email.com';
+    const savedLogo = localStorage.getItem('vstudio-logo') || 'https://placehold.co/80x80.png';
+    const savedPhone = localStorage.getItem('vstudio-phone') || '+999 123 456 789';
+    const savedWeb = localStorage.getItem('vstudio-web') || 'www.domain.com';
+    const savedArea = localStorage.getItem('vstudio-area') || '123 Street, Town, Postal';
+    setBranding({ name: savedName, email: savedEmail, logo: savedLogo, phone: savedPhone, web: savedWeb, area: savedArea });
+  }, []);
+
+  const client = clients.find(c => c.id === data.clientId);
+
+  const subtotal = (data.items || []).reduce((acc, item) => acc + (Number(item.quantity) || 0) * (Number(item.rate) || 0), 0);
+  const taxAmount = subtotal * ((Number(data.tax) || 0) / 100);
+  const total = subtotal + taxAmount;
+
+  if (!branding) {
+    return <div>Loading branding...</div>;
+  }
+  
+  const headerStyle = {
+    backgroundColor: lightenColor(themeColor, 50),
+  };
+
+  return (
+      <div style={{backgroundColor: themeColor, backgroundImage: `repeating-linear-gradient(45deg, ${lightenColor(themeColor, -25)}, ${lightenColor(themeColor, -25)} 20px, ${themeColor} 20px, ${themeColor} 40px)`}} className="text-white font-sans p-10 rounded-2xl shadow-lg max-w-4xl mx-auto">
+          <h1 className="text-4xl font-bold mb-1">INVOICE</h1>
+          <div className="text-lg text-right -mt-8">
+              {branding.name}
+          </div>
+          <div className="bg-white/90 p-8 rounded-xl text-gray-800 mt-4">
+              <div className="flex justify-between text-sm">
+                  <div>
+                      <p><strong>Invoice Date:</strong> {data.invoiceDate ? format(data.invoiceDate, 'dd/MM/yyyy') : 'N/A'}</p>
+                      <p><strong>Due Date:</strong> {data.dueDate ? format(data.dueDate, 'dd/MM/yyyy') : 'N/A'}</p>
+                      <p className="mt-2"><strong>Invoice To:</strong><br/>{client?.name}<br/>{client?.phone}</p>
+                  </div>
+                  <div>
+                      <p><strong>Ship To:</strong><br/>{client?.name}<br/>{client?.address}</p>
+                  </div>
+              </div>
+
+              <table className="w-full mt-5 border-collapse text-sm">
+                  <thead>
+                      <tr>
+                          <th style={headerStyle} className="text-white p-2.5 border border-gray-300">Service</th>
+                          <th style={headerStyle} className="text-white p-2.5 border border-gray-300">Price</th>
+                          <th style={headerStyle} className="text-white p-2.5 border border-gray-300">Qty</th>
+                          <th style={headerStyle} className="text-white p-2.5 border border-gray-300">Subtotal</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {(data.items || []).map((item, idx) => (
+                          <tr key={idx}>
+                              <td className="p-2.5 text-center border border-gray-300 bg-white">{item.description}</td>
+                              <td className="p-2.5 text-center border border-gray-300 bg-white">${(Number(item.rate) || 0).toFixed(2)}</td>
+                              <td className="p-2.5 text-center border border-gray-300 bg-white">{Number(item.quantity) || 0}</td>
+                              <td className="p-2.5 text-center border border-gray-300 bg-white">${((Number(item.quantity) || 0) * (Number(item.rate) || 0)).toFixed(2)}</td>
+                          </tr>
+                      ))}
+                  </tbody>
+              </table>
+
+              <div className="mt-5 flex justify-end font-bold">
+                  <div className="w-full max-w-xs text-sm space-y-1">
+                      <div className="flex justify-between p-1">
+                        <span>Subtotal</span>
+                        <span>${subtotal.toFixed(2)}</span>
+                      </div>
+                       <div className="flex justify-between p-1">
+                        <span>Tax ({Number(data.tax) || 0}%)</span>
+                        <span>${taxAmount.toFixed(2)}</span>
+                      </div>
+                       <div className="flex justify-between p-2 mt-1 rounded" style={{backgroundColor: lightenColor(themeColor, -10)}}>
+                        <span>Total Amount</span>
+                        <span>${total.toFixed(2)}</span>
+                      </div>
+                  </div>
+              </div>
+
+              <div className="mt-5 text-sm">
+                  <strong>Payment Detail:</strong><br/>
+                  Central Bank<br/>
+                  Account Name: {branding.name}<br/>
+                  Account Number: 1234567890
+              </div>
+
+              <div className="text-right text-xs mt-2">
+                  Please pay by: {data.dueDate ? format(data.dueDate, 'dd MMMM yyyy') : 'N/A'}
+              </div>
+          </div>
+      </div>
+  );
+}
+

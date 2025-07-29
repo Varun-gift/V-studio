@@ -1,6 +1,7 @@
 'use client';
 
 import { ClassicTemplate } from './invoice-template-classic';
+import { GinyardTemplate } from './invoice-template-ginyard';
 import { ModernTemplate } from './invoice-template-modern';
 import { ProfessionalTemplate } from './invoice-template-professional';
 import type { InvoiceFormValues } from './invoice-form';
@@ -18,6 +19,8 @@ export function InvoiceTemplate({ data, clients, template, themeColor }: Invoice
             return <ModernTemplate data={data} clients={clients} themeColor={themeColor} />;
         case 'professional':
             return <ProfessionalTemplate data={data} clients={clients} themeColor={themeColor} />;
+        case 'ginyard':
+            return <GinyardTemplate data={data} clients={clients} themeColor={themeColor} />;
         case 'classic':
         default:
             return <ClassicTemplate data={data} clients={clients} themeColor={themeColor} />;
