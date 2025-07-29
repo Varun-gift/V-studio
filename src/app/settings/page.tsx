@@ -74,9 +74,11 @@ export default function SettingsPage() {
     if (!user || !e.target.files || e.target.files.length === 0) return;
 
     const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploading(true);
     const localUrl = URL.createObjectURL(file);
     setLogo(localUrl); // Show preview immediately
-    setIsUploading(true);
 
     try {
       const storageRef = ref(storage, `logos/${user.uid}/${file.name}`);
@@ -89,8 +91,8 @@ export default function SettingsPage() {
       setLogo('https://placehold.co/80x80.png'); // Revert on error
       toast({ variant: 'destructive', title: 'Logo Upload Failed' });
     } finally {
+      URL.revokeObjectURL(localUrl);
       setIsUploading(false);
-      URL.revokeObjectURL(localUrl); // Clean up local URL
     }
   };
 
@@ -334,6 +336,5 @@ export default function SettingsPage() {
       </div>
     </AppLayout>
   );
-}
 
     
