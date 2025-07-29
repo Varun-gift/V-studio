@@ -22,10 +22,10 @@ export function ProfessionalTemplate({ data, brandingInfo }: ProfessionalTemplat
   const subtotal = (data.items || []).reduce((acc, item) => acc + (Number(item.quantity) || 0) * (Number(item.rate) || 0), 0);
   const taxAmount = subtotal * ((Number(data.tax) || 0) / 100);
   const total = subtotal + taxAmount;
-  const themeColor = brandingInfo.themeColor || '#0055a5';
+  const themeColor = brandingInfo.themeColor || '#004E45';
   
   const headerStyle = {
-    background: `linear-gradient(to right, ${themeColor}, #0055a5)`,
+    backgroundColor: themeColor,
   };
   const thStyle = {
     backgroundColor: themeColor,
@@ -48,8 +48,8 @@ export function ProfessionalTemplate({ data, brandingInfo }: ProfessionalTemplat
         <div className="w-[45%]">
           <p className="font-bold">From:</p>
           <p>{brandingInfo.name}</p>
-          <p>{brandingInfo.phone}</p>
-          <p>{brandingInfo.area}</p>
+          {brandingInfo.phone && <p>{brandingInfo.phone}</p>}
+          {brandingInfo.area && <p>{brandingInfo.area}</p>}
         </div>
       </div>
 
@@ -78,14 +78,21 @@ export function ProfessionalTemplate({ data, brandingInfo }: ProfessionalTemplat
         </tbody>
       </table>
 
-      <div className="text-right mt-2.5 font-bold">
-        Sub Total: ${subtotal.toFixed(2)}
-      </div>
-      <div className="text-right mt-2.5 font-bold">
-        Tax ({Number(data.tax) || 0}%): ${taxAmount.toFixed(2)}
-      </div>
-      <div className="text-right mt-2.5 font-bold">
-        Total: ${total.toFixed(2)}
+      <div className="flex justify-end mt-4 text-sm">
+        <div className="w-full max-w-xs space-y-2">
+            <div className="flex justify-between">
+                <span>Sub Total:</span>
+                <span>${subtotal.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+                <span>Tax ({Number(data.tax) || 0}%):</span>
+                <span>${taxAmount.toFixed(2)}</span>
+            </div>
+             <div className="flex justify-between font-bold text-base pt-2 border-t mt-2">
+                <span>Total:</span>
+                <span>${total.toFixed(2)}</span>
+            </div>
+        </div>
       </div>
 
 

@@ -18,8 +18,10 @@ interface GinyardTemplateProps {
     brandingInfo: BrandingInfo & { themeColor: string };
 }
 
-// Helper to lighten a hex color
 function lightenColor(hex: string, percent: number) {
+  if (!hex || !hex.startsWith('#')) {
+    return '#a94ad1'; // Return a default color if input is invalid
+  }
   hex = hex.replace(/^#/, '');
   const r = parseInt(hex.substring(0, 2), 16);
   const g = parseInt(hex.substring(2, 4), 16);
@@ -42,14 +44,19 @@ export function GinyardTemplate({ data, brandingInfo }: GinyardTemplateProps) {
   const headerStyle = {
     backgroundColor: lightenColor(themeColor, 50),
   };
+  
+  const mainBgStyle = {
+      backgroundColor: themeColor, 
+      backgroundImage: `repeating-linear-gradient(45deg, ${lightenColor(themeColor, -25)}, ${lightenColor(themeColor, -25)} 20px, ${themeColor} 20px, ${themeColor} 40px)`
+  };
 
   return (
-      <div style={{backgroundColor: themeColor, backgroundImage: `repeating-linear-gradient(45deg, ${lightenColor(themeColor, -25)}, ${lightenColor(themeColor, -25)} 20px, ${themeColor} 20px, ${themeColor} 40px)`}} className="text-white font-sans p-8 w-full h-full">
+      <div style={mainBgStyle} className="text-white font-sans p-8 w-full h-full">
           <h1 className="text-4xl font-bold mb-1">INVOICE</h1>
-          <div className="text-lg text-right -mt-8">
+          <div className="text-lg text-right -mt-8 text-white/90">
               {brandingInfo.name}
           </div>
-          <div className="bg-white/90 p-8 text-gray-800 mt-4">
+          <div className="bg-white/90 p-8 text-gray-800 mt-4 rounded-lg">
               <div className="flex justify-between text-sm">
                   <div>
                       <p><strong>Invoice Date:</strong> {data.invoiceDate ? format(data.invoiceDate, 'dd/MM/yyyy') : 'N/A'}</p>
@@ -57,7 +64,7 @@ export function GinyardTemplate({ data, brandingInfo }: GinyardTemplateProps) {
                       <p className="mt-2"><strong>Invoice To:</strong><br/>{data.clientName}<br/>{data.clientPhone}</p>
                   </div>
                   <div>
-                      <p><strong>Ship To:</strong><br/>{data.clientName}<br/>{data.clientAddress}</p>
+                      <p><strong>From:</strong><br/>{brandingInfo.name}<br/>{brandingInfo.area}</p>
                   </div>
               </div>
 
@@ -92,7 +99,7 @@ export function GinyardTemplate({ data, brandingInfo }: GinyardTemplateProps) {
                         <span>Tax ({Number(data.tax) || 0}%)</span>
                         <span>${taxAmount.toFixed(2)}</span>
                       </div>
-                       <div className="flex justify-between p-2 mt-1 rounded" style={{backgroundColor: lightenColor(themeColor, -10)}}>
+                       <div className="flex justify-between text-white p-2 mt-1 rounded" style={{backgroundColor: lightenColor(themeColor, -10)}}>
                         <span>Total Amount</span>
                         <span>${total.toFixed(2)}</span>
                       </div>
@@ -106,10 +113,10 @@ export function GinyardTemplate({ data, brandingInfo }: GinyardTemplateProps) {
                   Account Number: 1234567890
               </div>
 
-              <div className="text-right text-xs mt-2">
+          </div>
+            <div className="text-right text-xs mt-2 text-white/90">
                   Please pay by: {data.dueDate ? format(data.dueDate, 'dd MMMM yyyy') : 'N/A'}
               </div>
-          </div>
       </div>
   );
 }
