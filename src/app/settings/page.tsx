@@ -15,7 +15,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useAuth } from '@/contexts/auth-context';
 import { db, storage } from '@/lib/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { ref, uploadString, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 interface SettingsData {
     logo: string;
@@ -71,35 +71,29 @@ export default function SettingsPage() {
   }, [user]);
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!user) return;
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-      
-      setIsUploading(true);
-      reader.onload = async (event) => {
-        if (event.target?.result) {
-          const dataUrl = event.target.result as string;
-          setLogo(dataUrl); // Show preview immediately
+    if (!user || !e.target.files || e.target.files.length === 0) return;
 
-          try {
-            const storageRef = ref(storage, `logos/${user.uid}/${file.name}`);
-            const snapshot = await uploadString(storageRef, dataUrl, 'data_url');
-            const downloadURL = await getDownloadURL(snapshot.ref);
-            setLogo(downloadURL); // Update with final URL
-            toast({ title: 'Logo uploaded successfully!' });
-          } catch (error) {
-            console.error("Error uploading logo:", error);
-            setLogo('https://placehold.co/80x80.png'); // Revert on error
-            toast({ variant: 'destructive', title: 'Logo Upload Failed' });
-          } finally {
-            setIsUploading(false);
-          }
-        }
-      };
-      reader.readAsDataURL(file);
+    const file = e.target.files[0];
+    const localUrl = URL.createObjectURL(file);
+    setLogo(localUrl); // Show preview immediately
+    setIsUploading(true);
+
+    try {
+      const storageRef = ref(storage, `logos/${user.uid}/${file.name}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      setLogo(downloadURL); // Update with final URL
+      toast({ title: 'Logo uploaded successfully!' });
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+      setLogo('https://placehold.co/80x80.png'); // Revert on error
+      toast({ variant: 'destructive', title: 'Logo Upload Failed' });
+    } finally {
+      setIsUploading(false);
+      URL.revokeObjectURL(localUrl); // Clean up local URL
     }
   };
+
 
   const handleSaveChanges = async () => {
     if (!user) {
@@ -341,3 +335,5 @@ export default function SettingsPage() {
     </AppLayout>
   );
 }
+
+    
