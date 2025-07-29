@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AppLayout } from '@/components/app-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,6 +16,16 @@ export default function SettingsPage() {
   const [email, setEmail] = useState('user@example.com');
   const { toast } = useToast();
 
+  useEffect(() => {
+    const savedName = localStorage.getItem('vstudio-name');
+    const savedEmail = localStorage.getItem('vstudio-email');
+    const savedLogo = localStorage.getItem('vstudio-logo');
+
+    if (savedName) setName(savedName);
+    if (savedEmail) setEmail(savedEmail);
+    if (savedLogo) setLogo(savedLogo);
+  }, []);
+
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const reader = new FileReader();
@@ -29,12 +39,22 @@ export default function SettingsPage() {
   };
 
   const handleSaveChanges = () => {
-    // Here you would typically save the data to a backend or state management solution
-    console.log({ name, email, logo });
-    toast({
-      title: 'Settings Saved!',
-      description: 'Your branding and account information have been updated.',
-    });
+    try {
+      localStorage.setItem('vstudio-name', name);
+      localStorage.setItem('vstudio-email', email);
+      localStorage.setItem('vstudio-logo', logo);
+      toast({
+        title: 'Settings Saved!',
+        description: 'Your branding and account information have been updated.',
+      });
+    } catch (error) {
+       console.error("Failed to save settings to localStorage", error);
+       toast({
+         variant: 'destructive',
+         title: 'Error saving settings',
+         description: 'Could not save settings. Your browser might be blocking local storage.',
+       });
+    }
   };
 
   return (
@@ -66,7 +86,7 @@ export default function SettingsPage() {
                 <Label htmlFor="logo-upload">Company Logo</Label>
                 <div className="flex gap-2 mt-2">
                   <Input id="logo-upload" type="file" className="flex-1" onChange={handleLogoUpload} accept="image/*" />
-                  <Button variant="outline" onClick={() => document.getElementById('logo-upload')?.click()}>
+                   <Button variant="outline" onClick={() => document.getElementById('logo-upload')?.click()}>
                     <Upload className="mr-2 h-4 w-4" /> Upload
                   </Button>
                 </div>
