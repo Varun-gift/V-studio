@@ -10,17 +10,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Separator } from './ui/separator';
-import { Trash2, PlusCircle, Sparkles, FileDown, Send, Eye } from 'lucide-react';
+import { Trash2, PlusCircle, FileDown, Send, Eye } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { CalendarIcon } from 'lucide-react';
 import { Calendar } from './ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useState } from 'react';
-import { getAIDescription } from '@/app/invoices/new/actions';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
-import { Label } from './ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { InvoiceTemplate } from './invoice-template';
@@ -46,87 +44,6 @@ const mockClients = [
     { id: '2', name: 'Stark Industries', address: '10880 Malibu Point, 90265, CA', email: 'tony@stark.com', phone: '212-970-4133' },
     { id: '3', name: 'Wayne Enterprises', address: '1007 Mountain Drive, Gotham City', email: 'bruce@wayne.com', phone: '555-228-626' },
 ];
-
-function AIDescriptionDialog({ onGenerate }: { onGenerate: (description: string) => void }) {
-    const [open, setOpen] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const { toast } = useToast();
-
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        setLoading(true);
-        const formData = new FormData(event.currentTarget);
-        const serviceType = formData.get('serviceType') as string;
-        const hoursWorked = formData.get('hoursWorked') as string;
-        const flatRate = formData.get('flatRate') as string;
-        const additionalDetails = formData.get('additionalDetails') as string;
-
-        try {
-            const description = await getAIDescription({
-                serviceType,
-                hoursWorked: hoursWorked ? parseFloat(hoursWorked) : undefined,
-                flatRate: flatRate ? parseFloat(flatRate) : undefined,
-                additionalDetails,
-            });
-            onGenerate(description);
-            setOpen(false);
-        } catch (error) {
-            toast({
-                variant: 'destructive',
-                title: 'Error generating description',
-                description: 'An unexpected error occurred. Please try again.',
-            });
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" type="button">
-                    <Sparkles className="h-4 w-4 text-primary" />
-                    <span className="sr-only">Generate with AI</span>
-                </Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Service Description Assistant</DialogTitle>
-                    <DialogDescription>
-                        Provide some details and let AI write a professional service description for you.
-                    </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleSubmit}>
-                    <div className="grid gap-4 py-4">
-                        <div className="grid gap-2">
-                            <Label htmlFor="serviceType">Service Type</Label>
-                            <Input id="serviceType" name="serviceType" placeholder="e.g., Web Design, Consultation" required />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="grid gap-2">
-                                <Label htmlFor="hoursWorked">Hours Worked (optional)</Label>
-                                <Input id="hoursWorked" name="hoursWorked" type="number" step="0.1" />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="flatRate">Flat Rate (optional)</Label>
-                                <Input id="flatRate" name="flatRate" type="number" step="0.01" />
-                            </div>
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="additionalDetails">Additional Details (optional)</Label>
-                            <Textarea id="additionalDetails" name="additionalDetails" placeholder="e.g., Included 3 rounds of revisions" />
-                        </div>
-                    </div>
-                    <div className="flex justify-end">
-                        <Button type="submit" disabled={loading}>
-                            {loading ? "Generating..." : "Generate Description"}
-                        </Button>
-                    </div>
-                </form>
-            </DialogContent>
-        </Dialog>
-    );
-}
 
 export function InvoiceForm() {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
@@ -373,23 +290,26 @@ export function InvoiceForm() {
                   {fields.map((field, index) => (
                       <div key={field.id} className="flex flex-col md:flex-row gap-4 items-start p-4 border rounded-lg">
                           <div className="grid gap-2 flex-1">
-                              <Label>Description</Label>
-                              <div className="flex">
-                                  <Textarea {...form.register(`items.${index}.description`)} className="rounded-r-none"/>
-                                  <AIDescriptionDialog onGenerate={(desc) => form.setValue(`items.${index}.description`, desc)} />
-                              </div>
+                              <FormLabel>Description</FormLabel>
+                              <FormControl>
+                                <Textarea {...form.register(`items.${index}.description`)} />
+                              </FormControl>
                               <FormMessage>{form.formState.errors.items?.[index]?.description?.message}</FormMessage>
                           </div>
                           <div className="grid gap-2">
-                              <Label>Quantity</Label>
-                              <Input type="number" {...form.register(`items.${index}.quantity`)} />
+                              <FormLabel>Quantity</FormLabel>
+                              <FormControl>
+                                <Input type="number" {...form.register(`items.${index}.quantity`)} />
+                              </FormControl>
                           </div>
                           <div className="grid gap-2">
-                              <Label>Rate</Label>
-                              <Input type="number" step="0.01" {...form.register(`items.${index}.rate`)} />
+                              <FormLabel>Rate</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" {...form.register(`items.${index}.rate`)} />
+                              </FormControl>
                           </div>
                           <div className="grid gap-2">
-                              <Label>Total</Label>
+                              <FormLabel>Total</FormLabel>
                               <Input value={( (Number(watchItems[index].quantity) || 0) * (Number(watchItems[index].rate) || 0) ).toFixed(2)} disabled className="font-mono"/>
                           </div>
                           <Button
