@@ -98,7 +98,7 @@ export default function SettingsPage() {
                 <RadioGroup value={template} onValueChange={setTemplate} className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Label className="border rounded-md p-2 flex flex-col items-center gap-2 cursor-pointer has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
                     <RadioGroupItem value="classic" id="classic"/>
-                    <div className="border rounded-md p-2 w-full aspect-[1/1.41] bg-white">
+                    <div className="border rounded-md p-2 w-full aspect-[1/1.41] bg-white overflow-hidden">
                       {/* Classic Template Preview */}
                       <div className="flex justify-between items-start">
                         <div className="w-1/3 space-y-1">
@@ -125,7 +125,7 @@ export default function SettingsPage() {
                   </Label>
                    <Label className="border rounded-md p-2 flex flex-col items-center gap-2 cursor-pointer has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
                     <RadioGroupItem value="modern" id="modern"/>
-                     <div className="border rounded-md p-2 w-full aspect-[1/1.41] bg-white">
+                     <div className="border rounded-md p-2 w-full aspect-[1/1.41] bg-white overflow-hidden">
                       {/* Modern Template Preview */}
                       <div className="flex justify-between items-start">
                         <div className="w-1/3 space-y-1">
