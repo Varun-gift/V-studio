@@ -16,7 +16,7 @@ import { CalendarIcon } from 'lucide-react';
 import { Calendar } from './ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import jsPDF from 'jspdf';
@@ -48,6 +48,15 @@ const mockClients = [
 export function InvoiceForm() {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [template, setTemplate] = useState('classic');
+  const [themeColor, setThemeColor] = useState('#F39C12');
+
+  useEffect(() => {
+    const savedTemplate = localStorage.getItem('vstudio-template');
+    const savedThemeColor = localStorage.getItem('vstudio-theme-color');
+    if (savedTemplate) setTemplate(savedTemplate);
+    if (savedThemeColor) setThemeColor(savedThemeColor);
+  }, []);
 
   const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(invoiceSchema),
@@ -119,7 +128,7 @@ export function InvoiceForm() {
     const root = createRoot(invoiceElement);
     root.render(
         <div className="p-8 bg-white text-black w-[800px]">
-            <InvoiceTemplate data={data} clients={mockClients} />
+            <InvoiceTemplate data={data} clients={mockClients} template={template} themeColor={themeColor}/>
         </div>
     );
     
@@ -159,7 +168,7 @@ export function InvoiceForm() {
     <>
       <div className="hidden">
         <div id="invoice-pdf" className="p-8 bg-white text-black">
-          <InvoiceTemplate data={form.getValues()} clients={mockClients} />
+          <InvoiceTemplate data={form.getValues()} clients={mockClients} template={template} themeColor={themeColor}/>
         </div>
       </div>
 
@@ -169,7 +178,7 @@ export function InvoiceForm() {
                 <DialogTitle>Invoice Preview</DialogTitle>
             </DialogHeader>
             <div className="overflow-auto h-full border rounded-md">
-              <InvoiceTemplate data={form.getValues()} clients={mockClients} />
+              <InvoiceTemplate data={form.getValues()} clients={mockClients} template={template} themeColor={themeColor}/>
             </div>
         </DialogContent>
       </Dialog>

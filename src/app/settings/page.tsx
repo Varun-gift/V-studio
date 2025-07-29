@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Upload } from 'lucide-react';
 import Image from 'next/image';
 import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 export default function SettingsPage() {
   const [logo, setLogo] = useState('https://placehold.co/80x80.png');
@@ -18,6 +19,8 @@ export default function SettingsPage() {
   const [phone, setPhone] = useState('+999 123 456 789');
   const [web, setWeb] = useState('www.domain.com');
   const [area, setArea] = useState('123 Street, Town, Postal');
+  const [template, setTemplate] = useState('classic');
+  const [themeColor, setThemeColor] = useState('#F39C12');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -27,6 +30,8 @@ export default function SettingsPage() {
     const savedPhone = localStorage.getItem('vstudio-phone');
     const savedWeb = localStorage.getItem('vstudio-web');
     const savedArea = localStorage.getItem('vstudio-area');
+    const savedTemplate = localStorage.getItem('vstudio-template');
+    const savedThemeColor = localStorage.getItem('vstudio-theme-color');
 
     if (savedName) setName(savedName);
     if (savedEmail) setEmail(savedEmail);
@@ -34,6 +39,8 @@ export default function SettingsPage() {
     if (savedPhone) setPhone(savedPhone);
     if (savedWeb) setWeb(savedWeb);
     if (savedArea) setArea(savedArea);
+    if (savedTemplate) setTemplate(savedTemplate);
+    if (savedThemeColor) setThemeColor(savedThemeColor);
   }, []);
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,6 +63,8 @@ export default function SettingsPage() {
       localStorage.setItem('vstudio-phone', phone);
       localStorage.setItem('vstudio-web', web);
       localStorage.setItem('vstudio-area', area);
+      localStorage.setItem('vstudio-template', template);
+      localStorage.setItem('vstudio-theme-color', themeColor);
       toast({
         title: 'Settings Saved!',
         description: 'Your branding and account information have been updated.',
@@ -77,6 +86,34 @@ export default function SettingsPage() {
           <h1 className="text-3xl font-bold tracking-tight font-headline">Settings</h1>
           <p className="text-muted-foreground">Manage your account and branding settings.</p>
         </header>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Invoice Template</CardTitle>
+            <CardDescription>Choose the design and theme for your invoices.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+             <div>
+                <Label>Template</Label>
+                <RadioGroup value={template} onValueChange={setTemplate} className="mt-2 grid grid-cols-2 gap-4">
+                  <Label className="border rounded-md p-4 flex flex-col items-center gap-2 cursor-pointer has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
+                    <RadioGroupItem value="classic" id="classic"/>
+                    <Image src="https://placehold.co/150x210.png" width={150} height={210} alt="Classic Template Preview" className="rounded-md" data-ai-hint="invoice template"/>
+                    <span className="font-semibold">Classic</span>
+                  </Label>
+                   <Label className="border rounded-md p-4 flex flex-col items-center gap-2 cursor-pointer has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
+                    <RadioGroupItem value="modern" id="modern"/>
+                    <Image src="https://placehold.co/150x210.png" width={150} height={210} alt="Modern Template Preview" className="rounded-md" data-ai-hint="invoice template"/>
+                    <span className="font-semibold">Modern</span>
+                  </Label>
+                </RadioGroup>
+              </div>
+              <div className="grid grid-cols-2 gap-4 items-center">
+                 <Label htmlFor="theme-color">Theme Color</Label>
+                 <Input id="theme-color" type="color" value={themeColor} onChange={(e) => setThemeColor(e.target.value)} className="w-24 h-12 p-1" />
+              </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
@@ -136,10 +173,11 @@ export default function SettingsPage() {
               <Textarea id="area" value={area} onChange={(e) => setArea(e.target.value)} />
             </div>
           </CardContent>
-          <CardContent>
-             <Button onClick={handleSaveChanges}>Save Changes</Button>
-          </CardContent>
         </Card>
+
+         <div className="flex justify-end">
+            <Button onClick={handleSaveChanges}>Save Changes</Button>
+         </div>
       </div>
     </AppLayout>
   );
