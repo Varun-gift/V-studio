@@ -95,16 +95,68 @@ export default function SettingsPage() {
           <CardContent className="space-y-6">
              <div>
                 <Label>Template</Label>
-                <RadioGroup value={template} onValueChange={setTemplate} className="mt-2 grid grid-cols-2 gap-4">
-                  <Label className="border rounded-md p-4 flex flex-col items-center gap-2 cursor-pointer has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
+                <RadioGroup value={template} onValueChange={setTemplate} className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Label className="border rounded-md p-2 flex flex-col items-center gap-2 cursor-pointer has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
                     <RadioGroupItem value="classic" id="classic"/>
-                    <Image src="https://placehold.co/150x210.png" width={150} height={210} alt="Classic Template Preview" className="rounded-md" data-ai-hint="invoice template"/>
-                    <span className="font-semibold">Classic</span>
+                    <div className="border rounded-md p-2 w-full aspect-[1/1.41] bg-white">
+                      {/* Classic Template Preview */}
+                      <div className="flex justify-between items-start">
+                        <div className="w-1/3 space-y-1">
+                           <div className="w-8 h-8 rounded-lg bg-gray-200"></div>
+                           <div className="h-2 w-full rounded-sm bg-gray-400"></div>
+                           <div className="h-1 w-3/4 rounded-sm bg-gray-300"></div>
+                        </div>
+                        <div className="w-1/3 text-right space-y-1">
+                          <div className="h-3 w-full rounded-sm bg-gray-400"></div>
+                          <div className="h-1 w-1/2 ml-auto rounded-sm bg-gray-300"></div>
+                          <div className="h-1 w-2/3 ml-auto rounded-sm bg-gray-300"></div>
+                        </div>
+                      </div>
+                      <div className="mt-4 h-1 w-full" style={{backgroundColor: themeColor}}></div>
+                      <div className="mt-4 h-2 w-1/4 rounded-sm bg-gray-400"></div>
+                      <div className="mt-2 h-1 w-1/3 rounded-sm bg-gray-300"></div>
+                      <div className="mt-4 space-y-1">
+                        <div className="h-4 w-full flex items-center p-1" style={{backgroundColor: themeColor}}><div className="h-2 w-full bg-white/80 rounded-sm"></div></div>
+                        <div className="h-3 w-full bg-gray-100 border-b border-gray-200"></div>
+                        <div className="h-3 w-full bg-gray-100 border-b border-gray-200"></div>
+                      </div>
+                    </div>
+                    <span className="font-semibold mt-2">Classic</span>
                   </Label>
-                   <Label className="border rounded-md p-4 flex flex-col items-center gap-2 cursor-pointer has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
+                   <Label className="border rounded-md p-2 flex flex-col items-center gap-2 cursor-pointer has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
                     <RadioGroupItem value="modern" id="modern"/>
-                    <Image src="https://placehold.co/150x210.png" width={150} height={210} alt="Modern Template Preview" className="rounded-md" data-ai-hint="invoice template"/>
-                    <span className="font-semibold">Modern</span>
+                     <div className="border rounded-md p-2 w-full aspect-[1/1.41] bg-white">
+                      {/* Modern Template Preview */}
+                      <div className="flex justify-between items-start">
+                        <div className="w-1/3 space-y-1">
+                           <div className="w-6 h-6 rounded-md bg-gray-200"></div>
+                           <div className="h-2 w-full rounded-sm bg-gray-400"></div>
+                           <div className="h-1 w-3/4 rounded-sm bg-gray-300"></div>
+                        </div>
+                        <div className="w-1/3 text-right space-y-1">
+                          <div className="h-3 w-full rounded-sm" style={{backgroundColor: themeColor}}></div>
+                          <div className="h-1 w-1/2 ml-auto rounded-sm bg-gray-300"></div>
+                        </div>
+                      </div>
+                       <div className="grid grid-cols-3 gap-2 mt-4">
+                         <div className="h-1 w-full rounded-sm bg-gray-300"></div>
+                         <div className="h-1 w-full rounded-sm bg-gray-300"></div>
+                         <div className="h-1 w-full rounded-sm bg-gray-300"></div>
+                       </div>
+                      <div className="mt-4 space-y-1">
+                        <div className="h-2 w-full bg-gray-200 border-b border-gray-300"></div>
+                        <div className="h-3 w-full bg-gray-100 border-b border-gray-200"></div>
+                        <div className="h-3 w-full bg-gray-100 border-b border-gray-200"></div>
+                      </div>
+                      <div className="flex justify-end mt-2">
+                        <div className="w-1/3 space-y-1">
+                          <div className="h-1 w-full bg-gray-300"></div>
+                          <div className="h-1 w-full bg-gray-300"></div>
+                          <div className="h-2 w-full" style={{backgroundColor: themeColor}}></div>
+                        </div>
+                      </div>
+                    </div>
+                    <span className="font-semibold mt-2">Modern</span>
                   </Label>
                 </RadioGroup>
               </div>
