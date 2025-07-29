@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { AppLayout } from '@/components/app-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,8 +12,9 @@ import Image from 'next/image';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useAuth } from '@/contexts/auth-context';
-import { db } from '@/lib/firebase';
+import { db, storage } from '@/lib/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 interface SettingsData {
     logo: string;
@@ -40,6 +41,9 @@ export default function SettingsPage() {
   const [themeColor, setThemeColor] = useState('#F39C12');
 
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
 
   useEffect(() => {
     if (user) {
@@ -66,6 +70,26 @@ export default function SettingsPage() {
       fetchSettings();
     }
   }, [user]);
+
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    setIsUploading(true);
+
+    try {
+        const storageRef = ref(storage, `logos/${user.uid}/${file.name}`);
+        const snapshot = await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(snapshot.ref);
+        setLogo(downloadURL);
+        toast({ title: 'Logo uploaded successfully!' });
+    } catch (error) {
+        console.error("Error uploading file:", error);
+        toast({ variant: 'destructive', title: 'Upload Failed', description: 'Could not upload your logo. Please try again.' });
+    } finally {
+        setIsUploading(false);
+    }
+};
 
   const handleSaveChanges = async () => {
     if (!user) {
@@ -253,10 +277,22 @@ export default function SettingsPage() {
                   unoptimized
                 />
               </div>
-              <div className="flex-1">
-                <Label htmlFor="logo-url">Logo URL</Label>
-                <Input id="logo-url" placeholder="https://example.com/logo.png" value={logo} onChange={(e) => setLogo(e.target.value)} />
-                <p className="text-xs text-muted-foreground mt-2">Paste a URL to your company's logo.</p>
+              <div className="flex-1 space-y-2">
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleLogoUpload}
+                    className="hidden"
+                    accept="image/*"
+                />
+                <Button 
+                    variant="outline" 
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                >
+                    {isUploading ? 'Uploading...' : 'Choose File'}
+                </Button>
+                <p className="text-xs text-muted-foreground">Select a new logo for your company.</p>
               </div>
             </div>
           </CardContent>
@@ -292,7 +328,7 @@ export default function SettingsPage() {
         </Card>
 
          <div className="flex justify-end">
-            <Button onClick={handleSaveChanges} disabled={isSaving}>
+            <Button onClick={handleSaveChanges} disabled={isSaving || isUploading}>
                 {isSaving ? 'Saving...' : 'Save Changes'}
             </Button>
          </div>
