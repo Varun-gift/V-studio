@@ -71,22 +71,26 @@ export default function SettingsPage() {
   }, [user]);
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!user || !e.target.files || e.target.files.length === 0) return;
+    if (!user || !e.target.files || e.target.files.length === 0) {
+      return;
+    }
 
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     setIsUploading(true);
-    
+
     try {
       const storageRef = ref(storage, `logos/${user.uid}/${file.name}`);
-      const snapshot = await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      setLogo(downloadURL); // Update with final URL
+      await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(storageRef);
+      setLogo(downloadURL);
       toast({ title: 'Logo uploaded successfully!' });
     } catch (error) {
       console.error("Error uploading logo:", error);
-      toast({ variant: 'destructive', title: 'Logo Upload Failed' });
+      toast({ variant: 'destructive', title: 'Logo Upload Failed', description: 'Could not upload logo. Please try again.' });
     } finally {
       setIsUploading(false);
     }
@@ -333,5 +337,3 @@ export default function SettingsPage() {
     </AppLayout>
   );
 }
-
-    
