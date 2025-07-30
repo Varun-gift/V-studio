@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
+import type { FirebaseError } from 'firebase/app';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -25,7 +26,14 @@ export default function LoginPage() {
       router.push('/invoices');
     } catch (error) {
       console.error(error);
-      toast({ variant: 'destructive', title: 'Login Failed', description: 'Please check your credentials and try again.' });
+      const firebaseError = error as FirebaseError;
+      let description = 'Please check your credentials and try again.';
+      if (firebaseError.code === 'auth/user-not-found' || firebaseError.code === 'auth/wrong-password' || firebaseError.code === 'auth/invalid-credential') {
+        description = 'Invalid email or password. Please try again.';
+      } else if (firebaseError.code === 'auth/too-many-requests') {
+        description = 'Too many login attempts. Please try again later.';
+      }
+      toast({ variant: 'destructive', title: 'Login Failed', description });
     }
   };
 

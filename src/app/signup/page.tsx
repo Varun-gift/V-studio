@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
+import type { FirebaseError } from 'firebase/app';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -26,7 +27,14 @@ export default function SignupPage() {
       router.push('/invoices');
     } catch (error) {
       console.error(error);
-      toast({ variant: 'destructive', title: 'Signup Failed', description: 'Could not create an account. Please try again.' });
+      const firebaseError = error as FirebaseError;
+      let description = 'Could not create an account. Please try again.';
+      if (firebaseError.code === 'auth/email-already-in-use') {
+        description = 'This email is already registered. Please log in or use a different email.';
+      } else if (firebaseError.code === 'auth/weak-password') {
+        description = 'The password is too weak. Please choose a stronger password.';
+      }
+      toast({ variant: 'destructive', title: 'Signup Failed', description });
     }
   };
 
