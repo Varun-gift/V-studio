@@ -10,6 +10,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { v4 as uuidv4 } from 'uuid';
 import Image from 'next/image';
+import { PlusCircle, Trash2 } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils';
 
 const initialInvoiceState = {
   id: '',
@@ -48,6 +50,13 @@ export function InvoiceForm() {
     }
   }, [draftId]);
 
+  useEffect(() => {
+    const subtotal = invoice.items.reduce((acc, item) => acc + item.quantity * item.rate, 0);
+    const taxAmount = subtotal * (invoice.tax / 100);
+    const total = subtotal + taxAmount;
+    setInvoice(prev => ({ ...prev, subtotal, total }));
+  }, [invoice.items, invoice.tax]);
+
 
   const handleInputChange = (section: 'company' | 'client', field: string, value: string) => {
     setInvoice(prev => ({
@@ -59,6 +68,27 @@ export function InvoiceForm() {
   const handleGeneralChange = (field: string, value: string | number) => {
     setInvoice(prev => ({ ...prev, [field]: value }));
   };
+  
+  const handleItemChange = (id: string, field: string, value: string | number) => {
+    setInvoice(prev => ({
+        ...prev,
+        items: prev.items.map(item => item.id === id ? {...item, [field]: value} : item)
+    }))
+  }
+  
+  const handleAddItem = () => {
+    setInvoice(prev => ({
+        ...prev,
+        items: [...prev.items, { id: uuidv4(), description: '', quantity: 1, rate: 0 }]
+    }))
+  }
+
+  const handleRemoveItem = (id: string) => {
+    setInvoice(prev => ({
+        ...prev,
+        items: prev.items.filter(item => item.id !== id)
+    }))
+  }
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -139,6 +169,60 @@ export function InvoiceForm() {
             <div><Label>Tax (%)</Label><Input type="number" value={invoice.tax} onChange={e => handleGeneralChange('tax', parseFloat(e.target.value) || 0)} /></div>
             <div><Label>Invoice Date</Label><Input type="date" value={invoice.invoiceDate} onChange={e => handleGeneralChange('invoiceDate', e.target.value)} /></div>
             <div><Label>Due Date</Label><Input type="date" value={invoice.dueDate} onChange={e => handleGeneralChange('dueDate', e.target.value)} /></div>
+            </CardContent>
+        </Card>
+
+        <Card>
+            <CardHeader><CardTitle>Line Items</CardTitle></CardHeader>
+            <CardContent>
+                <div className="space-y-4">
+                    {invoice.items.map((item, index) => (
+                        <div key={item.id} className="grid grid-cols-1 md:grid-cols-[1fr_100px_100px_auto] gap-2 items-center">
+                            <Textarea 
+                                placeholder="Description" 
+                                value={item.description} 
+                                onChange={(e) => handleItemChange(item.id, 'description', e.target.value)}
+                                className="min-h-[40px]"
+                             />
+                            <Input 
+                                type="number" 
+                                placeholder="Quantity" 
+                                value={item.quantity} 
+                                onChange={(e) => handleItemChange(item.id, 'quantity', parseFloat(e.target.value) || 0)}
+                            />
+                            <Input 
+                                type="number" 
+                                placeholder="Rate" 
+                                value={item.rate} 
+                                onChange={(e) => handleItemChange(item.id, 'rate', parseFloat(e.target.value) || 0)}
+                            />
+                            <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)} disabled={invoice.items.length === 1}>
+                                <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                        </div>
+                    ))}
+                </div>
+                <Button variant="outline" size="sm" className="mt-4 flex items-center gap-2" onClick={handleAddItem}>
+                    <PlusCircle className="w-4 h-4" /> Add Item
+                </Button>
+            </CardContent>
+        </Card>
+
+        <Card>
+            <CardContent className="p-6 space-y-2">
+                <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="font-medium">{formatCurrency(invoice.subtotal)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Tax ({invoice.tax}%)</span>
+                    <span className="font-medium">{formatCurrency(invoice.subtotal * (invoice.tax / 100))}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between items-center text-xl font-bold">
+                    <span>Total</span>
+                    <span>{formatCurrency(invoice.total)}</span>
+                </div>
             </CardContent>
         </Card>
 
