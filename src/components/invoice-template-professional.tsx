@@ -3,7 +3,6 @@
 
 import { format } from 'date-fns';
 import type { InvoiceFormValues } from './invoice-form';
-import Image from 'next/image';
 
 interface BrandingInfo {
     name: string;
@@ -39,7 +38,7 @@ export function ProfessionalTemplate({ data, brandingInfo }: ProfessionalTemplat
         <div className="flex items-center gap-4">
             {brandingInfo.logoUrl && (
               <div className="w-16 h-16 relative">
-                  <Image src={brandingInfo.logoUrl} alt={`${brandingInfo.name} Logo`} layout="fill" objectFit="contain" unoptimized />
+                  <img src={brandingInfo.logoUrl} alt={`${brandingInfo.name} Logo`} style={{ width: '100%', height: '100%', objectFit: 'contain' }} crossOrigin="anonymous"/>
               </div>
             )}
             <div className="text-3xl font-bold">INVOICE</div>
@@ -123,5 +122,3 @@ export function ProfessionalTemplate({ data, brandingInfo }: ProfessionalTemplat
     </div>
   );
 }
-
-    

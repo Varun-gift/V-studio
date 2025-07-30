@@ -3,7 +3,6 @@
 
 import { format } from 'date-fns';
 import type { InvoiceFormValues } from './invoice-form';
-import Image from 'next/image';
 
 interface BrandingInfo {
     name: string;
@@ -57,7 +56,7 @@ export function GinyardTemplate({ data, brandingInfo }: GinyardTemplateProps) {
           <div className="flex justify-between items-center">
             {brandingInfo.logoUrl && (
               <div className="w-20 h-20 relative">
-                  <Image src={brandingInfo.logoUrl} alt={`${brandingInfo.name} Logo`} layout="fill" objectFit="contain" unoptimized/>
+                  <img src={brandingInfo.logoUrl} alt={`${brandingInfo.name} Logo`} style={{ width: '100%', height: '100%', objectFit: 'contain' }} crossOrigin="anonymous"/>
               </div>
             )}
             <div>
@@ -131,5 +130,3 @@ export function GinyardTemplate({ data, brandingInfo }: GinyardTemplateProps) {
       </div>
   );
 }
-
-    
