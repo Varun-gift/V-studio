@@ -63,7 +63,7 @@ export function InvoicePreview({
             </Select>
           </div>
           <div>
-            <Label>Accent Color</Label>
+            <Label>AccentColor</Label>
             <ChromePicker
               color={accentColor}
               onChange={(color) => onAccentColorChange(color.hex)}
@@ -74,9 +74,12 @@ export function InvoicePreview({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="aspect-[8.5/11] w-full bg-white rounded-md shadow-lg overflow-hidden">
+        <div
+          id="invoice-preview"
+          className="aspect-[8.5/11] w-full bg-white rounded-md shadow-lg overflow-hidden"
+        >
           <div className="p-2 bg-muted h-full overflow-auto">
-             <SelectedTemplate invoice={invoice} accentColor={accentColor} />
+            <SelectedTemplate invoice={invoice} accentColor={accentColor} />
           </div>
         </div>
       </CardContent>

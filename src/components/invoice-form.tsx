@@ -3,6 +3,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import Image from 'next/image';
 import { PlusCircle, Trash2 } from 'lucide-react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,7 +28,6 @@ export function InvoiceForm({
   onSaveDraft,
   onClearForm,
 }: InvoiceFormProps) {
-
   const handleInputChange = (
     section: 'company' | 'client',
     field: string,
@@ -84,6 +85,33 @@ export function InvoiceForm({
     }
   };
 
+  const handleGeneratePDF = () => {
+    const input = document.getElementById('invoice-preview');
+    if (input) {
+      html2canvas(input, {
+        scale: 2, // Higher scale for better quality
+        useCORS: true, 
+      }).then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        const ratio = canvasWidth / canvasHeight;
+        const width = pdfWidth;
+        const height = width / ratio;
+        
+        // If height is greater than pdfHeight, we may need to split pages, 
+        // for now, we fit it to one page.
+        const finalHeight = height > pdfHeight ? pdfHeight : height;
+
+        pdf.addImage(imgData, 'PNG', 0, 0, width, finalHeight);
+        pdf.save(`invoice-${invoice.invoiceNumber || 'download'}.pdf`);
+      });
+    }
+  };
+
   return (
     <div className="space-y-8">
       <Card>
@@ -126,7 +154,9 @@ export function InvoiceForm({
             <Label>Company Name</Label>
             <Input
               value={invoice.company.name}
-              onChange={(e) => handleInputChange('company', 'name', e.target.value)}
+              onChange={(e) =>
+                handleInputChange('company', 'name', e.target.value)
+              }
             />
           </div>
           <div>
@@ -134,28 +164,36 @@ export function InvoiceForm({
             <Input
               type="email"
               value={invoice.company.email}
-              onChange={(e) => handleInputChange('company', 'email', e.target.value)}
+              onChange={(e) =>
+                handleInputChange('company', 'email', e.target.value)
+              }
             />
           </div>
           <div>
             <Label>Company Phone</Label>
             <Input
               value={invoice.company.phone}
-              onChange={(e) => handleInputChange('company', 'phone', e.target.value)}
+              onChange={(e) =>
+                handleInputChange('company', 'phone', e.target.value)
+              }
             />
           </div>
           <div>
             <Label>Company Website</Label>
             <Input
               value={invoice.company.website}
-              onChange={(e) => handleInputChange('company', 'website', e.target.value)}
+              onChange={(e) =>
+                handleInputChange('company', 'website', e.target.value)
+              }
             />
           </div>
           <div className="md:col-span-2">
             <Label>Company Address</Label>
             <Textarea
               value={invoice.company.address}
-              onChange={(e) => handleInputChange('company', 'address', e.target.value)}
+              onChange={(e) =>
+                handleInputChange('company', 'address', e.target.value)
+              }
             />
           </div>
         </CardContent>
@@ -170,21 +208,27 @@ export function InvoiceForm({
             <Label>Client Name</Label>
             <Input
               value={invoice.client.name}
-              onChange={(e) => handleInputChange('client', 'name', e.target.value)}
+              onChange={(e) =>
+                handleInputChange('client', 'name', e.target.value)
+              }
             />
           </div>
           <div>
             <Label>Client Phone</Label>
             <Input
               value={invoice.client.phone}
-              onChange={(e) => handleInputChange('client', 'phone', e.target.value)}
+              onChange={(e) =>
+                handleInputChange('client', 'phone', e.target.value)
+              }
             />
           </div>
           <div className="md:col-span-2">
             <Label>Client Address</Label>
             <Textarea
               value={invoice.client.address}
-              onChange={(e) => handleInputChange('client', 'address', e.target.value)}
+              onChange={(e) =>
+                handleInputChange('client', 'address', e.target.value)
+              }
             />
           </div>
         </CardContent>
@@ -199,7 +243,9 @@ export function InvoiceForm({
             <Label>Invoice Number</Label>
             <Input
               value={invoice.invoiceNumber}
-              onChange={(e) => handleGeneralChange('invoiceNumber', e.target.value)}
+              onChange={(e) =>
+                handleGeneralChange('invoiceNumber', e.target.value)
+              }
             />
           </div>
           <div>
@@ -217,7 +263,9 @@ export function InvoiceForm({
             <Input
               type="date"
               value={invoice.invoiceDate}
-              onChange={(e) => handleGeneralChange('invoiceDate', e.target.value)}
+              onChange={(e) =>
+                handleGeneralChange('invoiceDate', e.target.value)
+              }
             />
           </div>
           <div>
@@ -325,6 +373,7 @@ export function InvoiceForm({
           Clear
         </Button>
         <Button onClick={onSaveDraft}>Save Draft</Button>
+        <Button onClick={handleGeneratePDF} variant="secondary">Download PDF</Button>
       </div>
     </div>
   );
