@@ -15,7 +15,7 @@ export function ProfessionalTemplate({ invoice, accentColor }: ProfessionalTempl
     <div className="bg-white p-8 text-black font-sans text-sm">
         <div className="grid grid-cols-2 gap-4 mb-8">
             <div>
-                {invoice.logoUrl && <Image src={invoice.logoUrl} alt="Company Logo" width={150} height={150} className="object-contain" />}
+                {invoice.logoUrl && <Image src={invoice.logoUrl} alt="Company Logo" width={180} height={180} className="object-contain" />}
             </div>
             <div className="text-right">
                 <h1 className="text-5xl font-extrabold uppercase" style={{ color: accentColor }}>Invoice</h1>

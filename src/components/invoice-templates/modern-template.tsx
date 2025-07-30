@@ -16,7 +16,7 @@ export function ModernTemplate({ invoice, accentColor }: ModernTemplateProps) {
       <div className="grid grid-cols-2 gap-10">
         {/* Left Column */}
         <div>
-            {invoice.logoUrl && <Image src={invoice.logoUrl} alt="Company Logo" width={100} height={100} className="object-contain mb-8" />}
+            {invoice.logoUrl && <Image src={invoice.logoUrl} alt="Company Logo" width={140} height={140} className="object-contain mb-8" />}
             
             <div className="mb-8">
                 <h3 className="font-bold text-gray-400 uppercase tracking-widest text-[10px] mb-2">From</h3>
