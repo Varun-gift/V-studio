@@ -1,3 +1,4 @@
+
 'use client';
 import Image from 'next/image';
 import { formatCurrency } from '@/lib/utils';
@@ -11,82 +12,111 @@ interface ModernTemplateProps {
 export function ModernTemplate({ invoice, accentColor }: ModernTemplateProps) {
   const { company, client, items, total, subtotal, tax } = invoice;
 
+  // A dark blue as a secondary color for the gradient, as in the example
+  const secondaryColor = '#0b1f44';
+
   return (
-    <div className="bg-white p-10 text-black font-sans text-xs">
-      <div className="grid grid-cols-2 gap-10">
-        {/* Left Column */}
-        <div>
-            {invoice.logoUrl && <Image src={invoice.logoUrl} alt="Company Logo" width={140} height={140} className="object-contain mb-8" />}
-            
-            <div className="mb-8">
-                <h3 className="font-bold text-gray-400 uppercase tracking-widest text-[10px] mb-2">From</h3>
-                <p className="font-bold">{company.name}</p>
-                <p className="text-gray-600">{company.address}</p>
-                <p className="text-gray-600">{company.phone}</p>
-            </div>
-            
-            <div className="mb-8">
-                <h3 className="font-bold text-gray-400 uppercase tracking-widest text-[10px] mb-2">To</h3>
-                <p className="font-bold">{client.name}</p>
-                <p className="text-gray-600">{client.address}</p>
-                <p className="text-gray-600">{client.phone}</p>
-            </div>
-        </div>
-
-        {/* Right Column */}
-        <div className="text-right">
-            <h1 className="text-4xl font-thin uppercase mb-6">Invoice</h1>
-            <div style={{ backgroundColor: accentColor, color: 'white' }} className="p-4 inline-block">
-                <h2 className="text-2xl font-bold">{formatCurrency(total)}</h2>
-                <p>Due: {invoice.dueDate}</p>
-            </div>
-            
-            <div className="mt-8 text-gray-500">
-                <p><span className="font-bold text-black">Invoice #</span> {invoice.invoiceNumber}</p>
-                <p><span className="font-bold text-black">Date:</span> {invoice.invoiceDate}</p>
-            </div>
-        </div>
+    <div className="bg-white text-black font-sans text-sm flex flex-col min-h-full">
+      {/* Header with wave effect */}
+      <div
+        className="relative text-white h-[180px] w-full"
+        style={{
+          background: `linear-gradient(to bottom right, ${secondaryColor} 50%, ${accentColor} 50%)`,
+          borderBottomLeftRadius: '100% 80px',
+          borderBottomRightRadius: '100% 80px',
+        }}
+      >
+        {invoice.logoUrl && (
+          <Image
+            src={invoice.logoUrl}
+            alt="Company Logo"
+            width={60}
+            height={60}
+            className="object-contain absolute top-5 left-8"
+          />
+        )}
+        <h1 className="absolute top-5 right-8 text-3xl font-bold">INVOICE</h1>
       </div>
 
-      {/* Line Items */}
-      <div className="mt-10">
-        <table className="w-full">
-            <thead>
-                <tr className="border-b-2 border-black">
-                    <th className="text-left font-bold uppercase tracking-widest text-[10px] pb-2">Description</th>
-                    <th className="text-right font-bold uppercase tracking-widest text-[10px] pb-2">Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                {items.map(item => (
-                    <tr key={item.id} className="border-b border-gray-200">
-                        <td className="py-2">
-                            <p className="font-bold">{item.description}</p>
-                            <p className="text-gray-500">{item.quantity} x {formatCurrency(item.rate)}</p>
-                        </td>
-                        <td className="py-2 text-right font-bold">{formatCurrency(item.quantity * item.rate)}</td>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
-      </div>
-      
-      {/* Totals */}
-      <div className="mt-8 flex justify-end">
-          <div className="w-1/3 text-right">
-              <div className="flex justify-between mb-1">
-                  <span className="text-gray-500">Subtotal</span>
-                  <span className="font-bold">{formatCurrency(subtotal)}</span>
-              </div>
-              <div className="flex justify-between mb-2">
-                  <span className="text-gray-500">Tax ({tax}%)</span>
-                  <span className="font-bold">{formatCurrency(subtotal * (tax / 100))}</span>
-              </div>
-              <div className="flex justify-between text-lg p-2" style={{ backgroundColor: accentColor, color: 'white' }}>
-                  <span className="font-bold">Total</span>
-                  <span className="font-bold">{formatCurrency(total)}</span>
-              </div>
+      {/* Main content area */}
+      <div className="p-8 flex-1">
+        <div className="flex justify-between items-start mb-8">
+          <div>
+            <h3 className="font-bold text-base mb-1">BILLING TO:</h3>
+            <p className="font-semibold">{client.name}</p>
+            <p>{client.address}</p>
+            <p>{client.phone}</p>
           </div>
+          <div className="text-right text-sm">
+            <p>
+              <span className="font-semibold">Invoice No :</span> #{invoice.invoiceNumber}
+            </p>
+            <p>
+              <span className="font-semibold">Invoice Date :</span> {invoice.invoiceDate}
+            </p>
+            <p>
+              <span className="font-semibold">Due Date :</span> {invoice.dueDate}
+            </p>
+          </div>
+        </div>
+
+        {/* Items Table */}
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr style={{ backgroundColor: accentColor, color: 'white' }}>
+              <th className="border border-gray-300 p-2.5 text-left">ITEM NAME</th>
+              <th className="border border-gray-300 p-2.5">PRICE</th>
+              <th className="border border-gray-300 p-2.5">QTY</th>
+              <th className="border border-gray-300 p-2.5 text-right">TOTAL</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item) => (
+              <tr key={item.id}>
+                <td className="border border-gray-300 p-2.5">{item.description}</td>
+                <td className="border border-gray-300 p-2.5 text-center">{formatCurrency(item.rate)}</td>
+                <td className="border border-gray-300 p-2.5 text-center">{item.quantity}</td>
+                <td className="border border-gray-300 p-2.5 text-right">{formatCurrency(item.quantity * item.rate)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* Totals Section */}
+        <div className="mt-5 flex justify-end">
+          <div className="w-[300px]">
+            <table className="w-full">
+              <tbody>
+                <tr>
+                  <td className="p-2 text-left">SUB TOTAL</td>
+                  <td className="p-2 text-right">{formatCurrency(subtotal)}</td>
+                </tr>
+                <tr>
+                  <td className="p-2 text-left">TAX</td>
+                  <td className="p-2 text-right">{tax}%</td>
+                </tr>
+                <tr>
+                  <td className="p-2 text-left font-bold">TOTAL</td>
+                  <td className="p-2 text-right font-bold">{formatCurrency(total)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="mt-16 text-right font-bold">SIGNATURE</div>
+      </div>
+
+      {/* Footer */}
+      <div
+        className="text-white p-4 text-xs mt-auto flex justify-between items-center"
+        style={{ backgroundColor: secondaryColor, borderTop: `5px solid ${accentColor}` }}
+      >
+        <span>{company.website}</span>
+        <div className="flex gap-4 items-center">
+          <span>&#128222; {company.phone}</span>
+          <span>&#128231; {company.email}</span>
+        </div>
       </div>
     </div>
   );
