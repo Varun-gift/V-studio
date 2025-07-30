@@ -43,12 +43,18 @@ export default function NewInvoicePage() {
         if (draftToEdit.accentColor) setAccentColor(draftToEdit.accentColor);
       }
     } else {
+      // Load from settings for new invoices
+      const savedSettings = JSON.parse(localStorage.getItem('company-settings') || '{}');
       const newInvoiceNumber = `INV-${String(Date.now()).slice(-6)}`;
-      setInvoice((prev) => ({
-        ...prev,
-        invoiceNumber: newInvoiceNumber,
+      setInvoice({
+        ...initialInvoiceState,
         id: uuidv4(),
-      }));
+        invoiceNumber: newInvoiceNumber,
+        company: savedSettings.company || initialInvoiceState.company,
+        logoUrl: savedSettings.logoUrl || '',
+      });
+      setTemplate(savedSettings.defaultTemplate || 'classic');
+      setAccentColor(savedSettings.themeColor || '#000000');
     }
   }, [draftId]);
 
@@ -82,14 +88,18 @@ export default function NewInvoicePage() {
   };
 
   const handleClearForm = () => {
-    const newInvoiceNumber = `INV-${String(Date.now()).slice(-6)}`;
-    setInvoice({
-      ...initialInvoiceState,
-      invoiceNumber: newInvoiceNumber,
-      id: uuidv4(),
-    });
-    setTemplate('classic');
-    setAccentColor('#000000');
+     // Load from settings for new invoices
+     const savedSettings = JSON.parse(localStorage.getItem('company-settings') || '{}');
+     const newInvoiceNumber = `INV-${String(Date.now()).slice(-6)}`;
+     setInvoice({
+       ...initialInvoiceState,
+       id: uuidv4(),
+       invoiceNumber: newInvoiceNumber,
+       company: savedSettings.company || initialInvoiceState.company,
+       logoUrl: savedSettings.logoUrl || '',
+     });
+     setTemplate(savedSettings.defaultTemplate || 'classic');
+     setAccentColor(savedSettings.themeColor || '#000000');
   };
 
   return (
