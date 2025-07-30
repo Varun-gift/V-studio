@@ -5,79 +5,90 @@ import type { Invoice } from '@/app/invoices/new/page';
 
 interface GinyardTemplateProps {
   invoice: Invoice;
-  accentColor: string;
+  accentColor: string; // Keep prop for consistency, though unused in this specific design
 }
 
-export function GinyardTemplate({ invoice, accentColor }: GinyardTemplateProps) {
+export function GinyardTemplate({ invoice }: GinyardTemplateProps) {
   const { company, client, items, total, subtotal, tax } = invoice;
 
   return (
-    <div className="bg-white p-8 text-black font-sans text-sm">
-        <div className="flex justify-between items-center mb-8">
-            <div>
-                <h1 className="text-3xl font-bold">{company.name}</h1>
-                <p className="text-gray-500">{company.address}</p>
-            </div>
-            {invoice.logoUrl && <Image src={invoice.logoUrl} alt="Company Logo" width={180} height={180} className="object-contain" />}
+    <div className="bg-[#002d4c] text-white font-sans text-sm rounded-lg overflow-hidden flex flex-col min-h-full">
+      <header className="p-8">
+        <div className="flex items-center gap-4">
+          {invoice.logoUrl && (
+            <Image
+              src={invoice.logoUrl}
+              alt="Company Logo"
+              width={60}
+              height={60}
+              className="object-contain rounded-md"
+            />
+          )}
+          <span className="text-2xl font-bold">{company.name}</span>
         </div>
-        
-        <div style={{ backgroundColor: accentColor }} className="text-white p-4 my-8 flex justify-between items-center">
-            <h2 className="text-2xl font-bold">INVOICE</h2>
-            <div>
-                <p># {invoice.invoiceNumber}</p>
-                <p>Date: {invoice.invoiceDate}</p>
-            </div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-4 mb-8">
-            <div>
-                <h3 className="font-bold mb-2">BILLED TO</h3>
-                <p>{client.name}</p>
-                <p>{client.address}</p>
-                <p>{client.phone}</p>
-            </div>
-            <div className="text-right">
-                <h3 className="font-bold mb-2">FROM</h3>
-                <p>{company.name}</p>
-                <p>{company.address}</p>
-                <p>{company.phone}</p>
-            </div>
-        </div>
+      </header>
 
-        <table className="w-full text-left mb-8">
-            <thead>
-                <tr className="border-b-2 border-black">
-                    <th className="pb-2">DESCRIPTION</th>
-                    <th className="text-center pb-2">QTY</th>
-                    <th className="text-right pb-2">PRICE</th>
-                    <th className="text-right pb-2">TOTAL</th>
-                </tr>
+      <div className="flex justify-between px-8 py-4">
+        <div className="text-xs leading-relaxed">
+          <p className="font-bold">ISSUED TO:</p>
+          <p>{client.name}</p>
+          <p>{client.address}</p>
+          <p>{client.phone}</p>
+        </div>
+        <div className="text-right text-xs">
+          <p><span className="font-bold">INVOICE NO:</span> {invoice.invoiceNumber}</p>
+          <p>{invoice.invoiceDate}</p>
+        </div>
+      </div>
+
+      <div className="px-8 py-4">
+        <div className="bg-[#001c32] rounded-lg overflow-hidden">
+          <table className="w-full text-left">
+            <thead className="bg-[#004d7a]">
+              <tr>
+                <th className="p-3 text-left font-bold">DESCRIPTION</th>
+                <th className="p-3 text-center font-bold">QTY</th>
+                <th className="p-3 text-right font-bold">RATE</th>
+                <th className="p-3 text-right font-bold">TOTAL</th>
+              </tr>
             </thead>
             <tbody>
-                {items.map(item => (
-                    <tr key={item.id} className="border-b">
-                        <td className="py-2">{item.description}</td>
-                        <td className="py-2 text-center">{item.quantity}</td>
-                        <td className="py-2 text-right">{formatCurrency(item.rate)}</td>
-                        <td className="py-2 text-right">{formatCurrency(item.quantity * item.rate)}</td>
-                    </tr>
-                ))}
+              {items.map(item => (
+                <tr key={item.id} className="border-b border-[#004d7a]">
+                  <td className="p-3 text-left">{item.description}</td>
+                  <td className="p-3 text-center">{item.quantity}</td>
+                  <td className="p-3 text-right">{formatCurrency(item.rate)}</td>
+                  <td className="p-3 text-right">{formatCurrency(item.quantity * item.rate)}</td>
+                </tr>
+              ))}
             </tbody>
-        </table>
-
-        <div className="flex justify-end">
-            <div className="w-2/5 space-y-2 text-right">
-                <div className="flex justify-between"><span>Subtotal</span><span>{formatCurrency(subtotal)}</span></div>
-                <div className="flex justify-between"><span>Tax ({tax}%)</span><span>{formatCurrency(subtotal * (tax / 100))}</span></div>
-                <div className="flex justify-between font-bold text-lg pt-2 border-t-2 border-black"><span>TOTAL</span><span style={{color: accentColor}}>{formatCurrency(total)}</span></div>
+          </table>
+        </div>
+      </div>
+      
+      <div className="flex justify-end px-8 py-4">
+          <div className="w-full max-w-xs text-xs space-y-2">
+            <div className="flex justify-between p-2 rounded-md bg-[#001c32]">
+              <span>Subtotal</span>
+              <span>{formatCurrency(subtotal)}</span>
             </div>
+            <div className="flex justify-between p-2 rounded-md bg-[#001c32]">
+              <span>Tax ({tax}%)</span>
+              <span>{formatCurrency(subtotal * (tax / 100))}</span>
+            </div>
+            <div className="flex justify-between p-2 font-bold text-base rounded-md bg-[#001c32]">
+              <span>Amount Due</span>
+              <span>{formatCurrency(total)}</span>
+            </div>
+          </div>
         </div>
 
-        <div className="mt-12 text-center">
-            <h3 className="text-lg font-bold mb-2" style={{color: accentColor}}>Thank You!</h3>
-            <p className="text-xs text-gray-500">Payment is due by {invoice.dueDate}</p>
-        </div>
 
+      <div className="mt-auto p-8 text-center text-gray-300 text-xs">
+        <p className="font-bold mb-2">Thank you for your business!</p>
+        <p>Payment is due by {invoice.dueDate}</p>
+        <p className="mt-4">{company.website}</p>
+      </div>
     </div>
   );
 }
