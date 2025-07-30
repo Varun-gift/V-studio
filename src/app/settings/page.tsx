@@ -34,7 +34,8 @@ export default function SettingsPage() {
     website: '',
   });
   const [logoUrl, setLogoUrl] = useState('');
-  const [themeColor, setThemeColor] = useState('#000000');
+  const [themeColor, setThemeColor] = useState('#F7931E');
+  const [themeSecondaryColor, setThemeSecondaryColor] = useState('#0b1f44');
   const [defaultTemplate, setDefaultTemplate] = useState<Template>('classic');
 
   useEffect(() => {
@@ -44,7 +45,8 @@ export default function SettingsPage() {
       const settings = JSON.parse(savedSettings);
       setCompany(settings.company || { name: '', email: '', phone: '', address: '', website: '' });
       setLogoUrl(settings.logoUrl || '');
-      setThemeColor(settings.themeColor || '#000000');
+      setThemeColor(settings.themeColor || '#F7931E');
+      setThemeSecondaryColor(settings.themeSecondaryColor || '#0b1f44');
       setDefaultTemplate(settings.defaultTemplate || 'classic');
     }
   }, []);
@@ -69,6 +71,7 @@ export default function SettingsPage() {
       company,
       logoUrl,
       themeColor,
+      themeSecondaryColor,
       defaultTemplate,
     };
     localStorage.setItem('company-settings', JSON.stringify(settings));
@@ -142,9 +145,15 @@ export default function SettingsPage() {
                   </Select>
                </div>
            </div>
-           <div className="space-y-2">
-              <Label>Default Theme Color</Label>
-              <ChromePicker color={themeColor} onChange={(color) => setThemeColor(color.hex)} disableAlpha className="!shadow-none" />
+           <div className="space-y-2 grid grid-cols-2 gap-4">
+             <div>
+                <Label>Default Theme Color</Label>
+                <ChromePicker color={themeColor} onChange={(color) => setThemeColor(color.hex)} disableAlpha className="!shadow-none" />
+             </div>
+             <div>
+                <Label>Default Secondary Color</Label>
+                <ChromePicker color={themeSecondaryColor} onChange={(color) => setThemeSecondaryColor(color.hex)} disableAlpha className="!shadow-none" />
+             </div>
            </div>
         </CardContent>
       </Card>

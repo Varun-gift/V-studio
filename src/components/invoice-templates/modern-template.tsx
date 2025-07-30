@@ -6,12 +6,11 @@ import type { Invoice } from '@/app/invoices/new/page';
 interface ModernTemplateProps {
   invoice: Invoice;
   accentColor: string;
+  secondaryColor: string;
 }
 
-export function ModernTemplate({ invoice, accentColor }: ModernTemplateProps) {
+export function ModernTemplate({ invoice, accentColor, secondaryColor }: ModernTemplateProps) {
   const { company, client, items, total, subtotal, tax } = invoice;
-
-  const secondaryColor = '#0b1f44';
 
   return (
     <div className="bg-white text-black font-sans text-sm flex flex-col min-h-full">
@@ -24,12 +23,10 @@ export function ModernTemplate({ invoice, accentColor }: ModernTemplateProps) {
         }}
       >
         {invoice.logoUrl && (
-          <Image
+          <img
             src={invoice.logoUrl}
             alt="Company Logo"
-            width={80}
-            height={80}
-            className="object-contain absolute top-5 left-8"
+            className="object-contain absolute top-5 left-8 w-[120px] h-[120px]"
           />
         )}
         <h1 className="absolute top-5 right-8 text-3xl font-bold">INVOICE</h1>

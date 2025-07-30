@@ -26,7 +26,8 @@ export type Template = 'classic' | 'modern' | 'professional' | 'ginyard';
 export default function NewInvoicePage() {
   const [invoice, setInvoice] = useState<Invoice>(initialInvoiceState);
   const [template, setTemplate] = useState<Template>('classic');
-  const [accentColor, setAccentColor] = useState('#000000');
+  const [accentColor, setAccentColor] = useState('#F7931E');
+  const [secondaryColor, setSecondaryColor] = useState('#0b1f44');
 
   const searchParams = useSearchParams();
   const draftId = searchParams.get('draftId');
@@ -41,6 +42,7 @@ export default function NewInvoicePage() {
         setInvoice(draftToEdit);
         if (draftToEdit.template) setTemplate(draftToEdit.template);
         if (draftToEdit.accentColor) setAccentColor(draftToEdit.accentColor);
+        if (draftToEdit.secondaryColor) setSecondaryColor(draftToEdit.secondaryColor);
       }
     } else {
       // Load from settings for new invoices
@@ -54,7 +56,8 @@ export default function NewInvoicePage() {
         logoUrl: savedSettings.logoUrl || '',
       });
       setTemplate(savedSettings.defaultTemplate || 'classic');
-      setAccentColor(savedSettings.themeColor || '#000000');
+      setAccentColor(savedSettings.themeColor || '#F7931E');
+      setSecondaryColor(savedSettings.themeSecondaryColor || '#0b1f44');
     }
   }, [draftId]);
 
@@ -69,7 +72,7 @@ export default function NewInvoicePage() {
   }, [invoice.items, invoice.tax]);
 
   const handleSaveDraft = () => {
-    const dataToSave = { ...invoice, template, accentColor };
+    const dataToSave = { ...invoice, template, accentColor, secondaryColor };
     const savedDrafts = JSON.parse(
       localStorage.getItem('invoice-drafts') || '[]'
     );
@@ -99,7 +102,8 @@ export default function NewInvoicePage() {
        logoUrl: savedSettings.logoUrl || '',
      });
      setTemplate(savedSettings.defaultTemplate || 'classic');
-     setAccentColor(savedSettings.themeColor || '#000000');
+     setAccentColor(savedSettings.themeColor || '#F7931E');
+     setSecondaryColor(savedSettings.themeSecondaryColor || '#0b1f44');
   };
 
   return (
@@ -109,8 +113,10 @@ export default function NewInvoicePage() {
           invoice={invoice}
           template={template}
           accentColor={accentColor}
+          secondaryColor={secondaryColor}
           onTemplateChange={setTemplate}
           onAccentColorChange={setAccentColor}
+          onSecondaryColorChange={setSecondaryColor}
         />
       </div>
       <div className="space-y-8">

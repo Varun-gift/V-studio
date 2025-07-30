@@ -20,8 +20,10 @@ interface InvoicePreviewProps {
   invoice: Invoice;
   template: Template;
   accentColor: string;
+  secondaryColor: string;
   onTemplateChange: (template: Template) => void;
   onAccentColorChange: (color: string) => void;
+  onSecondaryColorChange: (color: string) => void;
 }
 
 const templates = {
@@ -35,8 +37,10 @@ export function InvoicePreview({
   invoice,
   template,
   accentColor,
+  secondaryColor,
   onTemplateChange,
   onAccentColorChange,
+  onSecondaryColorChange,
 }: InvoicePreviewProps) {
   const SelectedTemplate = templates[template];
 
@@ -45,31 +49,44 @@ export function InvoicePreview({
       <CardHeader>
         <CardTitle>Preview</CardTitle>
         <div className="grid grid-cols-2 gap-4 pt-4">
-          <div>
-            <Label>Template</Label>
-            <Select
-              value={template}
-              onValueChange={(value) => onTemplateChange(value as Template)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select template" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="classic">Classic</SelectItem>
-                <SelectItem value="modern">Modern</SelectItem>
-                <SelectItem value="professional">Professional</SelectItem>
-                <SelectItem value="ginyard">Ginyard</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className='space-y-4'>
+            <div>
+              <Label>Template</Label>
+              <Select
+                value={template}
+                onValueChange={(value) => onTemplateChange(value as Template)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select template" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="classic">Classic</SelectItem>
+                  <SelectItem value="modern">Modern</SelectItem>
+                  <SelectItem value="professional">Professional</SelectItem>
+                  <SelectItem value="ginyard">Ginyard</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div>
-            <Label>AccentColor</Label>
-            <ChromePicker
-              color={accentColor}
-              onChange={(color) => onAccentColorChange(color.hex)}
-              disableAlpha
-              className="!shadow-none"
-            />
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label>Accent Color</Label>
+              <ChromePicker
+                color={accentColor}
+                onChange={(color) => onAccentColorChange(color.hex)}
+                disableAlpha
+                className="!shadow-none"
+              />
+            </div>
+             <div>
+              <Label>Secondary Color</Label>
+              <ChromePicker
+                color={secondaryColor}
+                onChange={(color) => onSecondaryColorChange(color.hex)}
+                disableAlpha
+                className="!shadow-none"
+              />
+            </div>
           </div>
         </div>
       </CardHeader>
@@ -79,7 +96,7 @@ export function InvoicePreview({
           className="aspect-[8.5/11] w-full bg-white rounded-md shadow-lg overflow-hidden"
         >
           <div className="p-2 bg-muted h-full overflow-auto">
-            <SelectedTemplate invoice={invoice} accentColor={accentColor} />
+            <SelectedTemplate invoice={invoice} accentColor={accentColor} secondaryColor={secondaryColor} />
           </div>
         </div>
       </CardContent>
