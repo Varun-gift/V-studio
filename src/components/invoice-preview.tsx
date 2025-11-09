@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +15,8 @@ import { ClassicTemplate } from './invoice-templates/classic-template';
 import { ModernTemplate } from './invoice-templates/modern-template';
 import { ProfessionalTemplate } from './invoice-templates/professional-template';
 import { GinyardTemplate } from './invoice-templates/ginyard-template';
+import { VssTemplate } from './invoice-templates/vss-template';
+import { CvsTemplate } from './invoice-templates/cvs-template';
 import type { Invoice, Template } from '@/app/invoices/new/page';
 
 interface InvoicePreviewProps {
@@ -31,6 +34,8 @@ const templates = {
   modern: ModernTemplate,
   professional: ProfessionalTemplate,
   ginyard: GinyardTemplate,
+  vss: VssTemplate,
+  cvs: CvsTemplate,
 };
 
 export function InvoicePreview({
@@ -64,6 +69,8 @@ export function InvoicePreview({
                   <SelectItem value="modern">Modern</SelectItem>
                   <SelectItem value="professional">Professional</SelectItem>
                   <SelectItem value="ginyard">Ginyard</SelectItem>
+                  <SelectItem value="vss">VSS</SelectItem>
+                  <SelectItem value="cvs">CVS</SelectItem>
                 </SelectContent>
               </Select>
             </div>

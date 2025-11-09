@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -21,7 +22,7 @@ const initialInvoiceState = {
 };
 
 export type Invoice = typeof initialInvoiceState;
-export type Template = 'classic' | 'modern' | 'professional' | 'ginyard';
+export type Template = 'classic' | 'modern' | 'professional' | 'ginyard' | 'vss' | 'cvs';
 
 export default function NewInvoicePage() {
   const [invoice, setInvoice] = useState<Invoice>(initialInvoiceState);

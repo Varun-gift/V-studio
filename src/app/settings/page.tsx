@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -141,6 +142,8 @@ export default function SettingsPage() {
                       <SelectItem value="modern">Modern</SelectItem>
                       <SelectItem value="professional">Professional</SelectItem>
                       <SelectItem value="ginyard">Ginyard</SelectItem>
+                      <SelectItem value="vss">VSS</SelectItem>
+                      <SelectItem value="cvs">CVS</SelectItem>
                     </SelectContent>
                   </Select>
                </div>
