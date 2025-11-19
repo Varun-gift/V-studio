@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -68,13 +69,22 @@ export function InvoicePreview({
         </div>
       </CardHeader>
       <CardContent>
-        <div
-          id="invoice-preview"
-          className="aspect-[8.5/11] w-full bg-white rounded-md shadow-lg overflow-hidden"
-        >
-          <div className="p-2 bg-muted h-full overflow-auto">
+        {/* Container for the scaled preview */}
+        <div className="w-full aspect-[8.5/11] bg-muted rounded-md border overflow-hidden">
+            <div
+                id="invoice-preview"
+                className="w-[800px] h-[1128px] origin-top-left bg-white"
+                style={{
+                  transform: 'scale(var(--tw-scale-x, 0.4))',
+                  transformOrigin: 'top left',
+                }}
+             >
+               <SelectedTemplate invoice={invoice} />
+            </div>
+        </div>
+         {/* Hidden, full-sized version for PDF generation */}
+        <div id="invoice-to-print" className="fixed -top-[9999px] -left-[9999px] w-[800px] h-auto bg-white">
             <SelectedTemplate invoice={invoice} />
-          </div>
         </div>
       </CardContent>
     </Card>

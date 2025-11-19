@@ -1,3 +1,4 @@
+
 'use client';
 
 import { v4 as uuidv4 } from 'uuid';
@@ -73,27 +74,36 @@ export function InvoiceForm({
   };
 
   const handleGeneratePDF = () => {
-    const input = document.getElementById('invoice-preview');
+    const input = document.getElementById('invoice-to-print');
     if (input) {
       html2canvas(input, {
-        scale: 2, // Higher scale for better quality
-        useCORS: true, 
+        scale: 4, // Use a higher scale for better resolution
+        logging: true,
+        useCORS: true,
+        width: input.scrollWidth,
+        height: input.scrollHeight,
+        windowWidth: input.scrollWidth,
+        windowHeight: input.scrollHeight,
       }).then((canvas) => {
         const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdf = new jsPDF('p', 'mm', 'a4', true);
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
-        const canvasWidth = canvas.width;
-        const canvasHeight = canvas.height;
-        const ratio = canvasWidth / canvasHeight;
-        const width = pdfWidth;
-        const height = width / ratio;
-        
-        // If height is greater than pdfHeight, we may need to split pages, 
-        // for now, we fit it to one page.
-        const finalHeight = height > pdfHeight ? pdfHeight : height;
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+        const ratio = imgWidth / imgHeight;
+        let width = pdfWidth;
+        let height = width / ratio;
 
-        pdf.addImage(imgData, 'PNG', 0, 0, width, finalHeight);
+        if (height > pdfHeight) {
+          height = pdfHeight;
+          width = height * ratio;
+        }
+        
+        const x = (pdfWidth - width) / 2;
+        const y = 0;
+
+        pdf.addImage(imgData, 'PNG', x, y, width, height, undefined, 'FAST');
         pdf.save(`${invoice.type}-${invoice.invoiceNumber || 'download'}.pdf`);
       });
     }

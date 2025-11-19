@@ -162,7 +162,7 @@ function NewInvoicePageContents() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-      <div className="lg:sticky lg:top-8">
+      <div className="lg:sticky lg:top-8 order-last lg:order-first">
         <InvoicePreview
           invoice={invoice}
           template={template}
