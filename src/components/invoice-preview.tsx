@@ -72,13 +72,15 @@ export function InvoicePreview({
         <div className="w-full aspect-[8.5/11] bg-muted rounded-md border overflow-hidden relative">
             <div
                 id="invoice-preview-wrapper"
-                className="absolute top-0 left-0 w-full h-full"
+                className="absolute inset-0 flex items-center justify-center"
              >
                <div
                   id="invoice-preview"
-                  className="w-[800px] h-auto origin-top-left bg-white"
+                  className="w-[800px] bg-white"
                   style={{
-                    transform: 'scale(calc(100% / 800px))', // Dynamically scale based on container width
+                    transform: `scale(calc(100% / 800px))`,
+                    transformOrigin: 'center center',
+                    maxHeight: '100%',
                   }}
                >
                  <SelectedTemplate invoice={invoice} />
