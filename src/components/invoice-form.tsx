@@ -85,31 +85,32 @@ export function InvoiceForm({
         scale: 4,
         logging: true,
         useCORS: true,
-        width: input.offsetWidth,
-        height: input.offsetHeight,
-        windowWidth: document.documentElement.offsetWidth,
-        windowHeight: document.documentElement.offsetHeight,
       }).then((canvas) => {
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4', true);
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        const imgWidth = canvas.width;
-        const imgHeight = canvas.height;
-        const ratio = imgWidth / imgHeight;
-        let width = pdfWidth;
-        let height = width / ratio;
+        try {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4', true);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const imgWidth = canvas.width;
+            const imgHeight = canvas.height;
+            const ratio = imgWidth / imgHeight;
+            let width = pdfWidth;
+            let height = width / ratio;
 
-        if (height > pdfHeight) {
-          height = pdfHeight;
-          width = height * ratio;
+            if (height > pdfHeight) {
+              height = pdfHeight;
+              width = height * ratio;
+            }
+
+            const x = (pdfWidth - width) / 2;
+            const y = 0;
+
+            pdf.addImage(imgData, 'PNG', x, y, width, height, undefined, 'FAST');
+            pdf.save(`${invoice.type}-${invoice.invoiceNumber || 'download'}.pdf`);
+        } catch (error) {
+            console.error("Error generating PDF:", error);
+            alert("Sorry, something went wrong while generating the PDF. Please try again.");
         }
-
-        const x = (pdfWidth - width) / 2;
-        const y = 0;
-
-        pdf.addImage(imgData, 'PNG', x, y, width, height, undefined, 'FAST');
-        pdf.save(`${invoice.type}-${invoice.invoiceNumber || 'download'}.pdf`);
       });
     } else {
         console.error("PDF generation failed: element with id 'pdf-generator' not found.");
