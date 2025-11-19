@@ -1,11 +1,21 @@
 
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { InvoiceForm } from '@/components/invoice-form';
 import { InvoicePreview } from '@/components/invoice-preview';
 import { v4 as uuidv4 } from 'uuid';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
+import { FileText, FileSignature } from 'lucide-react';
 
 const initialInvoiceState = {
   id: '',
@@ -29,16 +39,25 @@ export type DocumentType = 'invoice' | 'quotation';
 function NewInvoicePageContents() {
   const [invoice, setInvoice] = useState<Invoice>(initialInvoiceState);
   const [template, setTemplate] = useState<Template>('classic');
-  
+  const [showTypeSelector, setShowTypeSelector] = useState(false);
+
+  const router = useRouter();
   const searchParams = useSearchParams();
   const draftId = searchParams.get('draftId');
-  const docType = (searchParams.get('type') as DocumentType) || 'invoice';
+  const docType = searchParams.get('type') as DocumentType | null;
 
-  const docTitle = docType === 'quotation' ? 'Quotation' : 'Invoice';
-  const docNumberPrefix = docType === 'quotation' ? 'QUO' : 'INV';
+  const docTitle = useMemo(() => docType === 'quotation' ? 'Quotation' : 'Invoice', [docType]);
+  const docNumberPrefix = useMemo(() => docType === 'quotation' ? 'QUO' : 'INV', [docType]);
 
   useEffect(() => {
-    // This function will only run on the client, avoiding hydration issues.
+    if (!docType && !draftId) {
+      setShowTypeSelector(true);
+    } else {
+      setShowTypeSelector(false);
+    }
+  }, [docType, draftId]);
+
+  useEffect(() => {
     const loadData = () => {
       if (draftId) {
         const savedDrafts = JSON.parse(
@@ -49,8 +68,7 @@ function NewInvoicePageContents() {
           setInvoice(draftToEdit);
           if (draftToEdit.template) setTemplate(draftToEdit.template);
         }
-      } else {
-        // Load from settings for new invoices
+      } else if (docType) {
         const savedSettings = JSON.parse(localStorage.getItem('company-settings') || '{}');
         const newInvoiceNumber = `${docNumberPrefix}-${String(Date.now()).slice(-6)}`;
         setInvoice({
@@ -78,6 +96,7 @@ function NewInvoicePageContents() {
   }, [invoice.items, invoice.tax]);
 
   const handleSaveDraft = () => {
+    if (!invoice.type) return;
     const dataToSave = { ...invoice, template };
     const savedDrafts = JSON.parse(
       localStorage.getItem('invoice-drafts') || '[]'
@@ -94,10 +113,15 @@ function NewInvoicePageContents() {
 
     localStorage.setItem('invoice-drafts', JSON.stringify(savedDrafts));
     alert('Draft saved!');
+    router.push('/dashboard');
   };
+  
+  const handleSelectType = (type: DocumentType) => {
+    router.push(`/invoices/new?type=${type}`);
+  }
 
   const handleClearForm = () => {
-     // Load from settings for new invoices
+     if (!docType) return;
      const savedSettings = JSON.parse(localStorage.getItem('company-settings') || '{}');
      const newInvoiceNumber = `${docNumberPrefix}-${String(Date.now()).slice(-6)}`;
      setInvoice({
@@ -110,6 +134,31 @@ function NewInvoicePageContents() {
      });
      setTemplate(savedSettings.defaultTemplate || 'classic');
   };
+
+  if (!docType || !invoice.type) {
+    return (
+      <Dialog open={showTypeSelector} onOpenChange={(open) => !open && router.push('/dashboard')}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>What would you like to create?</DialogTitle>
+            <DialogDescription>
+              Choose whether you want to create a new invoice or a quotation.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center gap-4 py-8">
+            <Button variant="outline" className="h-24 w-24 flex-col gap-2" onClick={() => handleSelectType('invoice')}>
+              <FileText className="w-8 h-8"/>
+              <span>Invoice</span>
+            </Button>
+            <Button variant="outline" className="h-24 w-24 flex-col gap-2" onClick={() => handleSelectType('quotation')}>
+              <FileSignature className="w-8 h-8" />
+              <span>Quotation</span>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">

@@ -10,8 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { PlusCircle, Edit, Trash2, FileText, FileSignature } from 'lucide-react';
-import Link from 'next/link';
+import { Edit, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { formatCurrency } from '@/lib/utils';
 import type { Invoice } from '@/app/invoices/new/page';
@@ -48,22 +47,8 @@ export default function DashboardPage() {
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
           <p className="mt-2 text-muted-foreground">
-            Create a new document or manage your saved drafts.
+            Here are your saved drafts.
           </p>
-        </div>
-        <div className="flex gap-2">
-          <Link href="/invoices/new?type=invoice" passHref>
-            <Button className="flex items-center gap-2">
-              <FileText className="w-5 h-5" />
-              <span>New Invoice</span>
-            </Button>
-          </Link>
-          <Link href="/invoices/new?type=quotation" passHref>
-            <Button variant="secondary" className="flex items-center gap-2">
-              <FileSignature className="w-5 h-5" />
-              <span>New Quotation</span>
-            </Button>
-          </Link>
         </div>
       </div>
 
@@ -71,7 +56,7 @@ export default function DashboardPage() {
         <div className="text-center py-16 border-2 border-dashed rounded-lg">
           <p className="text-muted-foreground">You have no saved drafts.</p>
           <p className="text-sm text-muted-foreground mt-2">
-            Click "+ New Invoice" or "+ New Quotation" to get started.
+            Click the "+" button below to create a new document.
           </p>
         </div>
       ) : (

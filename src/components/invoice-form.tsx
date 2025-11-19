@@ -276,7 +276,7 @@ export function InvoiceForm({
         <Button variant="outline" onClick={onClearForm}>
           Clear
         </Button>
-        <Button onClick={onSaveDraft}>Save Draft</Button>
+        <Button onClick={onSaveDraft}>Save as Draft</Button>
         <Button onClick={handleGeneratePDF} variant="secondary">Download PDF</Button>
       </div>
     </div>
