@@ -1,4 +1,3 @@
-
 'use client';
 import Image from 'next/image';
 import { formatCurrency } from '@/lib/utils';
@@ -11,7 +10,7 @@ interface ClassicTemplateProps {
 export function ClassicTemplate({ invoice }: ClassicTemplateProps) {
   const { company, client, items, total, subtotal, tax, type } = invoice;
   const docTitle = type === 'quotation' ? 'QUOTATION' : 'INVOICE';
-  const accentColor = '#F7931E'; // Default color
+  const accentColor = '#4B5563'; 
 
   return (
     <div className="bg-white p-8 text-black font-serif text-sm">

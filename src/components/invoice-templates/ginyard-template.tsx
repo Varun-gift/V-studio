@@ -1,4 +1,3 @@
-
 'use client';
 import Image from 'next/image';
 import { formatCurrency } from '@/lib/utils';
@@ -11,13 +10,14 @@ interface GinyardTemplateProps {
 export function GinyardTemplate({ invoice }: GinyardTemplateProps) {
   const { company, client, items, total, subtotal, tax, type } = invoice;
   const docTitle = type === 'quotation' ? 'QUOTATION' : 'INVOICE';
-  const secondaryColor = '#002d4c'; // Default color
-  const accentColor = '#004d7a'; // Default color
+  const secondaryColor = '#ADD8E6'; // Light Blue
+  const accentColor = '#4682B4'; // Steel Blue
+  const textColor = '#000080'; // Navy
 
   return (
     <div
-      className="text-white font-sans text-sm rounded-lg overflow-hidden flex flex-col min-h-full"
-      style={{ backgroundColor: secondaryColor }}
+      className="font-sans text-sm rounded-lg overflow-hidden flex flex-col min-h-full"
+      style={{ backgroundColor: secondaryColor, color: textColor }}
     >
       <header className="p-8">
         <div className="flex items-center gap-4">
@@ -48,9 +48,9 @@ export function GinyardTemplate({ invoice }: GinyardTemplateProps) {
       </div>
 
       <div className="px-8 py-4">
-        <div className="bg-black bg-opacity-20 rounded-lg overflow-hidden">
+        <div className="bg-white bg-opacity-50 rounded-lg overflow-hidden">
           <table className="w-full text-left">
-            <thead style={{ backgroundColor: accentColor }}>
+            <thead style={{ backgroundColor: accentColor, color: 'white' }}>
               <tr>
                 <th className="p-3 text-left font-bold">DESCRIPTION</th>
                 <th className="p-3 text-center font-bold">QTY</th>
@@ -74,15 +74,15 @@ export function GinyardTemplate({ invoice }: GinyardTemplateProps) {
       
       <div className="flex justify-end px-8 py-4">
           <div className="w-full max-w-xs text-xs space-y-2">
-            <div className="flex justify-between p-2 rounded-md bg-black bg-opacity-20">
+            <div className="flex justify-between p-2 rounded-md bg-white bg-opacity-50">
               <span>Subtotal</span>
               <span>{formatCurrency(subtotal)}</span>
             </div>
-            <div className="flex justify-between p-2 rounded-md bg-black bg-opacity-20">
+            <div className="flex justify-between p-2 rounded-md bg-white bg-opacity-50">
               <span>Tax ({tax}%)</span>
               <span>{formatCurrency(subtotal * (tax / 100))}</span>
             </div>
-            <div className="flex justify-between p-2 font-bold text-base rounded-md bg-black bg-opacity-20">
+            <div className="flex justify-between p-2 font-bold text-base rounded-md bg-white bg-opacity-50">
               <span>Amount Due</span>
               <span>{formatCurrency(total)}</span>
             </div>
@@ -90,7 +90,7 @@ export function GinyardTemplate({ invoice }: GinyardTemplateProps) {
         </div>
 
 
-      <div className="mt-auto p-8 text-center text-gray-300 text-xs">
+      <div className="mt-auto p-8 text-center text-gray-700 text-xs">
         <p className="font-bold mb-2">Thank you for your business!</p>
         <p>Payment is due by {invoice.dueDate}</p>
         <p className="mt-4">{company.website}</p>

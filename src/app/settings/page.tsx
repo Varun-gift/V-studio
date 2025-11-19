@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -128,7 +127,7 @@ export default function SettingsPage() {
            </div>
            <div className="space-y-2">
              <Label>Default Template</Label>
-              <Select value={defaultTemplate} onValuechange={(value) => setDefaultTemplate(value as Template)}>
+              <Select value={defaultTemplate} onValueChange={(value) => setDefaultTemplate(value as Template)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select template" />
                 </SelectTrigger>

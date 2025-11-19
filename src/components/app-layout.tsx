@@ -2,13 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { Home, FileText, Settings, FileSignature } from 'lucide-react';
+import { Home, FileText, Settings, FileSignature, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import { Button } from './ui/button';
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const type = searchParams.get('type');
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   const navLinks = [
     { href: '/dashboard', label: 'Dashboard', icon: Home, exact: true },
@@ -16,11 +19,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     { href: '/invoices/new?type=quotation', label: 'New Quotation', icon: FileSignature, type: 'quotation' },
     { href: '/settings', label: 'Settings', icon: Settings, exact: true },
   ];
-
-  return (
-    <div className="flex min-h-screen">
-      <aside className="w-64 border-r bg-background p-4">
-        <div className="flex items-center gap-2 mb-8">
+  
+  const NavContent = () => (
+    <>
+       <div className="flex items-center gap-2 mb-8">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -75,6 +77,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                     <li key={link.href}>
                       <Link
                         href={currentLink}
+                        onClick={() => setSidebarOpen(false)}
                         className={cn(
                           'flex items-center gap-3 rounded-md px-3 py-2 transition-colors',
                           active
@@ -89,11 +92,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                  )
               }
 
-
               return (
                 <li key={link.href}>
                   <Link
                     href={link.href}
+                    onClick={() => setSidebarOpen(false)}
                     className={cn(
                       'flex items-center gap-3 rounded-md px-3 py-2 transition-colors',
                       isActive
@@ -109,8 +112,40 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             })}
           </ul>
         </nav>
+    </>
+  )
+
+  return (
+    <div className="flex min-h-screen">
+      {/* Mobile Sidebar */}
+      <div className={cn(
+          "fixed inset-0 z-40 bg-black/50 transition-opacity md:hidden",
+          isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+      )} onClick={() => setSidebarOpen(false)}></div>
+      <aside className={cn(
+          "fixed top-0 left-0 h-full w-64 bg-card border-r p-4 z-50 transform transition-transform md:hidden",
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        <NavContent />
       </aside>
-      <main className="flex-1 p-8">{children}</main>
+
+      {/* Desktop Sidebar */}
+      <aside className="w-64 border-r bg-card p-4 hidden md:block">
+        <NavContent />
+      </aside>
+
+      <main className="flex-1 flex flex-col">
+          <header className="md:hidden flex items-center justify-between p-4 border-b bg-card">
+              <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
+                  <Menu className="w-6 h-6" />
+              </Button>
+               <h1 className="text-xl font-bold">Invoicer</h1>
+               <div className='w-10'></div>
+          </header>
+          <div className="p-4 md:p-8 flex-1">
+             {children}
+          </div>
+      </main>
     </div>
   );
 }

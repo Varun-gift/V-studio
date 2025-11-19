@@ -1,7 +1,6 @@
 'use client';
 
 import { v4 as uuidv4 } from 'uuid';
-import Image from 'next/image';
 import { PlusCircle, Trash2 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -29,7 +28,7 @@ export function InvoiceForm({
   onClearForm,
 }: InvoiceFormProps) {
   const handleInputChange = (
-    section: 'company' | 'client',
+    section: 'client',
     field: string,
     value: string
   ) => {
@@ -73,18 +72,6 @@ export function InvoiceForm({
     }));
   };
 
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        setInvoice((prev) => ({ ...prev, logoUrl: result }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const handleGeneratePDF = () => {
     const input = document.getElementById('invoice-preview');
     if (input) {
@@ -116,91 +103,6 @@ export function InvoiceForm({
 
   return (
     <div className="space-y-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>Branding</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4">
-            <div className="flex items-center gap-4">
-              {invoice.logoUrl && (
-                <Image
-                  src={invoice.logoUrl}
-                  alt="Logo Preview"
-                  width={80}
-                  height={80}
-                  className="rounded-md object-contain"
-                />
-              )}
-              <div>
-                <Label htmlFor="logo">Company Logo</Label>
-                <Input
-                  id="logo"
-                  type="file"
-                  onChange={handleLogoChange}
-                  className="mt-1"
-                  accept="image/*"
-                />
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Info</CardTitle>
-        </CardHeader>
-        <CardContent className="grid md:grid-cols-2 gap-4">
-          <div>
-            <Label>Company Name</Label>
-            <Input
-              value={invoice.company.name}
-              onChange={(e) =>
-                handleInputChange('company', 'name', e.target.value)
-              }
-            />
-          </div>
-          <div>
-            <Label>Company Email</Label>
-            <Input
-              type="email"
-              value={invoice.company.email}
-              onChange={(e) =>
-                handleInputChange('company', 'email', e.target.value)
-              }
-            />
-          </div>
-          <div>
-            <Label>Company Phone</Label>
-            <Input
-              value={invoice.company.phone}
-              onChange={(e) =>
-                handleInputChange('company', 'phone', e.target.value)
-              }
-            />
-          </div>
-          <div>
-            <Label>Company Website</Label>
-            <Input
-              value={invoice.company.website}
-              onChange={(e) =>
-                handleInputChange('company', 'website', e.target.value)
-              }
-            />
-          </div>
-          <div className="md:col-span-2">
-            <Label>Company Address</Label>
-            <Textarea
-              value={invoice.company.address}
-              onChange={(e) =>
-                handleInputChange('company', 'address', e.target.value)
-              }
-            />
-          </div>
-        </CardContent>
-      </Card>
-
       <Card>
         <CardHeader>
           <CardTitle>Client Info</CardTitle>
@@ -370,7 +272,7 @@ export function InvoiceForm({
 
       <Separator />
 
-      <div className="flex justify-end gap-2">
+      <div className="flex flex-wrap justify-end gap-2">
         <Button variant="outline" onClick={onClearForm}>
           Clear
         </Button>
