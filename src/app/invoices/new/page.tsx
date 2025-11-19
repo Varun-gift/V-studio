@@ -135,9 +135,9 @@ function NewInvoicePageContents() {
      setTemplate(savedSettings.defaultTemplate || 'classic');
   };
 
-  if (!docType || !invoice.type) {
+  if (!docType && !draftId) {
     return (
-      <Dialog open={showTypeSelector} onOpenChange={(open) => !open && router.push('/dashboard')}>
+      <Dialog open={true} onOpenChange={(open) => !open && router.push('/dashboard')}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>What would you like to create?</DialogTitle>
