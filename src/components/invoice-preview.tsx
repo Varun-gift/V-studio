@@ -69,23 +69,16 @@ export function InvoicePreview({
       </CardHeader>
       <CardContent>
         {/* Container for the scaled preview */}
-        <div className="w-full aspect-[8.5/11] bg-muted rounded-md border overflow-hidden relative">
-            <div
-                id="invoice-preview-wrapper"
-                className="absolute inset-0 flex items-center justify-center"
-             >
-               <div
-                  id="invoice-preview"
-                  className="w-[800px] bg-white"
-                  style={{
-                    transform: `scale(calc(100% / 800px))`,
-                    transformOrigin: 'center center',
-                    maxHeight: '100%',
-                  }}
-               >
-                 <SelectedTemplate invoice={invoice} />
-               </div>
-            </div>
+        <div className="w-full aspect-[8.5/11] bg-muted rounded-md border overflow-hidden">
+          <div
+            id="invoice-preview"
+            className="w-[800px] h-[1128px] bg-white origin-top-left"
+            style={{
+              transform: 'scale(0.6) translate(15%, 15%)', // Increased scale and adjusted position
+            }}
+          >
+            <SelectedTemplate invoice={invoice} />
+          </div>
         </div>
          {/* Hidden, full-sized version for PDF generation */}
         <div id="invoice-to-print" className="fixed -top-[9999px] -left-[9999px] w-[800px] h-auto bg-white">
